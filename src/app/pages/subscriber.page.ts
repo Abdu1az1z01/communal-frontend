@@ -1,0 +1,115 @@
+import { Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { BillingService } from '../billing.service';
+import { Bill, Subscriber } from '../billing.model';
+import { UtilityService, findService } from '../services';
+
+// Страница абонента: данные, история начислений по месяцам, оплата и передача показаний
+@Component({
+  selector: 'app-subscriber-page',
+  standalone: true,
+  imports: [FormsModule, RouterLink],
+  templateUrl: './subscriber.page.html',
+  styleUrl: './subscriber.page.css'
+})
+export class SubscriberPage {
+  private billingService = inject(BillingService);
+
+  service = signal<UtilityService | undefined>(undefined);
+  subscriber = signal<Subscriber | null>(null);
+  bills = signal<Bill[]>([]);
+  newReading = signal<number | null>(null);
+  isLoading = signal<boolean>(false);
+  error = signal<string>('');
+  success = signal<string>('');
+
+  unpaidCount = computed(() => this.bills().filter(b => !b.paid).length);
+
+  constructor() {
+    inject(ActivatedRoute).paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
+      this.service.set(findService(params.get('serviceId')));
+      this.load(Number(params.get('id')));
+    });
+  }
+
+  load(id: number): void {
+    this.error.set('');
+    this.billingService.getSubscriber(id).subscribe({
+      next: s => this.subscriber.set(s),
+      error: (err: unknown) => {
+        console.error(err);
+        this.error.set('Абонент не найден или бэкенд не запущен.');
+      }
+    });
+    this.loadBills(id);
+  }
+
+  private loadBills(id: number): void {
+    this.billingService.getBills(id).subscribe({
+      next: list => this.bills.set(list),
+      error: (err: unknown) => console.error(err)
+    });
+  }
+
+  // '2026-09' → 'Сентябрь 2026'
+  formatPeriod(period: string): string {
+    const [year, month] = period.split('-').map(Number);
+    const name = new Date(year, month - 1, 1).toLocaleString('ru-RU', { month: 'long' });
+    return `${name[0].toUpperCase()}${name.slice(1)} ${year}`;
+  }
+
+  // '2026-09-10' → '10.09.2026'
+  formatDate(date: string): string {
+    return date.split('-').reverse().join('.');
+  }
+
+  pay(bill: Bill): void {
+    this.isLoading.set(true);
+    this.error.set('');
+    this.success.set('');
+    this.billingService.payBill(bill.id).subscribe({
+      next: s => {
+        this.subscriber.set(s);
+        this.loadBills(s.id);
+        this.success.set(`Начисление за ${this.formatPeriod(bill.period)} оплачено.`);
+        this.isLoading.set(false);
+      },
+      error: (err: unknown) => {
+        console.error(err);
+        this.error.set('Не удалось провести оплату.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  onSubmitReading(): void {
+    const reading = this.newReading();
+    const s = this.subscriber();
+    if (reading === null || s === null) return;
+
+    if (reading < s.currentReading) {
+      this.error.set('Новые показания не могут быть меньше последних!');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set('');
+    this.success.set('');
+    this.billingService.submitReading(s.id, reading).subscribe({
+      next: updated => {
+        this.subscriber.set(updated);
+        this.loadBills(updated.id);
+        this.newReading.set(null);
+        this.success.set('Показания приняты, начисление добавлено в историю.');
+        this.isLoading.set(false);
+      },
+      error: (err: unknown) => {
+        console.error(err);
+        this.error.set('Ошибка передачи показаний на сервер.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+}

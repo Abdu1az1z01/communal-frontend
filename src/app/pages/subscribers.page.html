@@ -1,0 +1,78 @@
+@if (service(); as s) {
+  <div class="page-head">
+    <div>
+      <h2 class="page-title">{{ s.icon }} {{ s.name }}</h2>
+      <p class="subtitle">Абоненты предприятия · всего: {{ subscribers().length }}</p>
+    </div>
+
+    <input
+      type="search"
+      class="input search-input"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="onSearchChange($event)"
+      placeholder="🔍 Поиск по ФИО, лицевому счёту или адресу"
+    />
+  </div>
+
+  @if (error()) {
+    <p class="msg msg-error">⚠️ {{ error() }}</p>
+  }
+
+  <!-- Таблица абонентов. Нажатие на строку открывает историю начислений абонента -->
+  <section class="card table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>№</th>
+          <th>ФИО</th>
+          <th>Лицевой счёт</th>
+          <th>Телефон</th>
+          <th>Адрес</th>
+          <th>Тариф</th>
+          <th class="text-right">Долг</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sub of pageRows(); track sub.id; let i = $index) {
+          <tr class="row" (click)="openSubscriber(sub)" title="Открыть историю начислений">
+            <td class="muted">{{ (page() - 1) * pageSize + i + 1 }}</td>
+            <td class="name">👤 {{ sub.ownerName }}</td>
+            <td>{{ sub.accountNumber }}</td>
+            <td class="nowrap">{{ sub.phone || '—' }}</td>
+            <td>{{ sub.address }}</td>
+            <td class="nowrap">{{ sub.tariff }} сом/{{ s.unit }}</td>
+            <td class="text-right nowrap">
+              @if (sub.debt > 0) {
+                <span class="debt">{{ sub.debt }} сом</span>
+              } @else {
+                <span class="paid">Оплачено</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          @if (!isLoading() && !error()) {
+            <tr><td colspan="7" class="muted empty-row">Никого не найдено</td></tr>
+          }
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Переключение страниц таблицы -->
+  @if (pageCount() > 1) {
+    <nav class="pagination">
+      <button type="button" (click)="goToPage(1)" [disabled]="page() === 1">«</button>
+      <button type="button" (click)="goToPage(page() - 1)" [disabled]="page() === 1">‹</button>
+      @for (p of pages(); track p) {
+        <button type="button" [class.current]="p === page()" (click)="goToPage(p)">{{ p }}</button>
+      }
+      <button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === pageCount()">›</button>
+      <button type="button" (click)="goToPage(pageCount())" [disabled]="page() === pageCount()">»</button>
+    </nav>
+  }
+} @else {
+  <section class="card empty-card">
+    <div class="empty-title">Такой услуги нет</div>
+    <div class="muted">Выберите услугу в меню слева</div>
+  </section>
+}

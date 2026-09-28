@@ -1,0 +1,99 @@
+.back {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #0284c7;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:hover { text-decoration: underline; }
+
+/* ===== Карточка абонента ===== */
+.info {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 24px;
+  padding: 28px;
+}
+
+.info-main .page-title {
+  margin: 6px 0 16px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, auto));
+  gap: 8px 32px;
+  font-size: 1.05rem;
+}
+
+/* Общий долг: красный блок / зелёный блок */
+.total {
+  flex-shrink: 0;
+  min-width: 240px;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.total-debt { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
+.total-paid { background: #ecfdf5; border: 1px solid #a7f3d0; color: #059669; }
+
+.total-label { font-size: 0.95rem; font-weight: 600; }
+.total-value { font-size: 2.2rem; font-weight: 800; }
+.total-value span { font-size: 1.1rem; }
+.total-note { font-size: 0.9rem; margin-top: 4px; }
+
+/* ===== История начислений ===== */
+.section-title {
+  margin: 28px 0 12px;
+  font-size: 1.3rem;
+  color: #0f172a;
+}
+
+.period { font-weight: 600; }
+
+.row-debt { background: #fff5f5; }
+.row-paid { background: #f6fef9; }
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-debt { background: #fee2e2; color: #b91c1c; }
+.badge-paid { background: #d1fae5; color: #047857; }
+
+.btn-small { padding: 8px 16px; font-size: 0.95rem; }
+
+.empty-row { text-align: center; padding: 32px !important; }
+
+/* ===== Передача показаний ===== */
+.reading {
+  margin-top: 24px;
+  padding: 24px 28px;
+}
+
+.reading h3 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+  color: #0f172a;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  max-width: 560px;
+}
+
+@media (max-width: 900px) {
+  .info { flex-direction: column; }
+  .info-grid { grid-template-columns: minmax(0, 1fr); }
+}
