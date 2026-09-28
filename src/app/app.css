@@ -102,16 +102,6 @@
   text-align: center;
 }
 
-/* ===== Плашка выбранной услуги ===== */
-.selected-service {
-  background: #e0f2fe;
-  color: #0369a1;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-bottom: 24px;
-  font-size: 1rem;
-}
-
 /* ===== Основное содержимое ===== */
 .content {
   margin-left: 10vw;       /* отступ под меню слева (= ширина .sidebar) */
@@ -136,7 +126,7 @@
 /* Две колонки: слева поиск, справа квитанция */
 .layout {
   display: grid;
-  grid-template-columns: 420px 1fr;   /* ширина левой колонки | правая занимает остальное */
+  grid-template-columns: 460px 1fr;   /* ширина окна со списком | квитанция занимает остальное */
   gap: 24px;
   align-items: start;
 }
@@ -147,16 +137,82 @@
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-.search-card {
-  padding: 28px;
+/* ===== Окно со списком абонентов ===== */
+.list-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 260px);   /* список прокручивается внутри окна */
+  min-height: 300px;
 }
 
-.field-label {
-  display: block;
+.list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.list-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.search-input {
+  flex: none;
+  margin-bottom: 12px;
+}
+
+.subscriber-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.subscriber {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.subscriber:hover { background: #f8fafc; }
+
+.subscriber.active {
+  background: #e0f2fe;
+  border-radius: 8px;
+}
+
+.subscriber-main { min-width: 0; }
+
+.subscriber-name {
   font-weight: 600;
-  color: #334155;
-  margin-bottom: 10px;
-  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+.subscriber-debt {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.subscriber-debt.zero { color: #10b981; }
+
+.small { font-size: 0.85rem; }
+
+.list-empty {
+  padding: 24px 0;
+  text-align: center;
 }
 
 .input-row {
@@ -190,8 +246,6 @@
 }
 
 .btn:disabled { opacity: 0.6; cursor: default; }
-.btn-primary { background: #0284c7; }
-.btn-primary:hover { background: #0369a1; }
 .btn-success { background: #10b981; }
 .btn-success:hover { background: #059669; }
 
@@ -299,6 +353,7 @@
   .bill-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+  .list-card { max-height: 60vh; }
 }
 
 @media (max-width: 768px) {
