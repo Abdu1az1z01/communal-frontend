@@ -1,9 +1,15 @@
-/* ===== Шапка ===== */
+/* ===== Шапка (на всю ширину, прижата к верху) ===== */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .brand {
@@ -26,7 +32,7 @@
 
 .subtitle {
   color: #64748b;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
   font-size: 0.9rem;
 }
 
@@ -40,10 +46,6 @@
 }
 
 /* ===== Кнопка «три полоски» ===== */
-.menu-wrapper {
-  position: relative;
-}
-
 .burger {
   width: 40px;
   height: 40px;
@@ -77,18 +79,26 @@
 .burger.open span:nth-child(2) { opacity: 0; }
 .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ===== Выпадающее меню ===== */
-.menu {
-  position: absolute;
-  top: 48px;
+/* ===== Боковое меню слева ===== */
+.sidebar {
+  position: fixed;
+  top: 64px;               /* сразу под шапкой (= высота .topbar) */
   left: 0;
-  z-index: 10;
-  min-width: 240px;
+  bottom: 0;
+  z-index: 15;
+  width: 10vw;             /* ширина меню: 1/10 ширины экрана */
+  min-width: 220px;        /* но не уже 220px, чтобы текст помещался */
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
-  padding: 8px;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 4px 0 20px -5px rgba(0, 0, 0, 0.1);
+  padding: 12px 8px;
+  overflow-y: auto;
+  transform: translateX(-100%);   /* по умолчанию спрятано за левым краем */
+  transition: transform 0.25s ease;
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
 
 .menu-title {
