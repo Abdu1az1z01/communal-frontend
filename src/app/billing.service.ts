@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Bill, Subscriber } from './billing.model';
 
@@ -32,5 +32,19 @@ export class BillingService {
 
   payBill(billId: number): Observable<Subscriber> {
     return this.http.post<Subscriber>(`${this.apiUrl}/bills/${billId}/pay`, {});
+  }
+
+  // Понятное описание ошибки запроса, чтобы сразу было видно, что не так с бэкендом
+  describeError(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 0) {
+        return `Бэкенд не отвечает на ${this.apiUrl}. Запустите класс ZettaBilling (папка zetta-backend).`;
+      }
+      if (err.status === 404) {
+        return `Бэкенд ответил 404 (${err.url}). Скорее всего, запущен старый бэкенд — остановите его и запустите ZettaBilling из zetta-backend.`;
+      }
+      return `Ошибка бэкенда ${err.status}: ${err.statusText || err.message}`;
+    }
+    return 'Неизвестная ошибка при обращении к бэкенду.';
   }
 }

@@ -40,7 +40,7 @@ export class SubscriberPage {
       next: s => this.subscriber.set(s),
       error: (err: unknown) => {
         console.error(err);
-        this.error.set('Абонент не найден или бэкенд не запущен.');
+        this.error.set('Не удалось загрузить абонента. ' + this.billingService.describeError(err));
       }
     });
     this.loadBills(id);

@@ -70,7 +70,7 @@ export class SubscribersPage {
       error: (err: unknown) => {
         console.error(err);
         this.subscribers.set([]);
-        this.error.set('Не удалось загрузить абонентов. Проверьте, что бэкенд запущен (http://localhost:8080).');
+        this.error.set('Не удалось загрузить абонентов. ' + this.billingService.describeError(err));
         this.isLoading.set(false);
       }
     });
