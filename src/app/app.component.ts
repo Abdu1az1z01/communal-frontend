@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BillingService } from './billing.service';
@@ -8,6 +8,7 @@ export interface UtilityService {
   id: string;
   name: string;
   icon: string;
+  unit: string;
 }
 
 @Component({
@@ -19,62 +20,77 @@ export interface UtilityService {
 })
 export class AppComponent {
   private billingService = inject(BillingService);
+  private searchTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Список услуг в меню «три полоски». Чтобы добавить/убрать/переименовать услугу — меняйте здесь.
+  // Список услуг в левом меню. Чтобы добавить/убрать/переименовать услугу — меняйте здесь.
+  // id должен совпадать с service_type в базе данных на бэкенде.
   services: UtilityService[] = [
-    { id: 'cold-water', name: 'Холодная вода/Стоки', icon: '💧' },
-    { id: 'hot-water', name: 'Горячая вода', icon: '🚿' },
-    { id: 'heating', name: 'Отопление', icon: '🔥' },
-    { id: 'garbage', name: 'Вывоз ТБО (мусор)', icon: '🗑️' },
-    { id: 'gas', name: 'Газ', icon: '⛽' }
+    { id: 'cold-water', name: 'Холодная вода/Стоки', icon: '💧', unit: 'м³' },
+    { id: 'hot-water', name: 'Горячая вода', icon: '🚿', unit: 'м³' },
+    { id: 'heating', name: 'Отопление', icon: '🔥', unit: 'Гкал' },
+    { id: 'garbage', name: 'Вывоз ТБО (мусор)', icon: '🗑️', unit: 'чел.' },
+    { id: 'gas', name: 'Газ', icon: '⛽', unit: 'м³' }
   ];
 
-  isMenuOpen = signal<boolean>(false);
   selectedService = signal<UtilityService | null>(null);
 
-  searchAccount = signal<string>('102030');
+  // Окно со списком абонентов
+  subscribers = signal<UtilityBill[]>([]);
+  searchQuery = signal<string>('');
+  isListLoading = signal<boolean>(false);
+  listError = signal<string>('');
+
+  // Квитанция выбранного абонента
   bill = signal<UtilityBill | null>(null);
   newReading = signal<number | null>(null);
   isLoading = signal<boolean>(false);
   errorMessage = signal<string>('');
   successMessage = signal<string>('');
 
-  toggleMenu(event: MouseEvent): void {
-    event.stopPropagation();
-    this.isMenuOpen.update(open => !open);
-  }
-
   selectService(service: UtilityService): void {
     this.selectedService.set(service);
-    this.isMenuOpen.set(false);
-  }
-
-  // Закрываем меню при клике в любом месте страницы
-  @HostListener('document:click')
-  closeMenu(): void {
-    this.isMenuOpen.set(false);
-  }
-
-  onSearch(): void {
-    const acc = this.searchAccount();
-    if (!acc || !acc.trim()) return;
-
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
+    this.searchQuery.set('');
     this.bill.set(null);
+    this.loadSubscribers();
+  }
 
-    this.billingService.getBillByAccount(acc).subscribe({
-      next: (data: UtilityBill) => {
-        this.bill.set(data);
-        this.isLoading.set(false);
+  // Поиск запускается сам через 300 мс после того, как пользователь перестал печатать
+  onSearchChange(value: string): void {
+    this.searchQuery.set(value);
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => this.loadSubscribers(), 300);
+  }
+
+  loadSubscribers(): void {
+    const service = this.selectedService();
+    if (!service) return;
+
+    this.isListLoading.set(true);
+    this.listError.set('');
+
+    this.billingService.getSubscribers(service.id, this.searchQuery().trim()).subscribe({
+      next: (list: UtilityBill[]) => {
+        this.subscribers.set(list);
+        this.isListLoading.set(false);
       },
       error: (err: unknown) => {
         console.error(err);
-        this.errorMessage.set('Лицевой счет не найден. Проверьте правильность номера.');
-        this.isLoading.set(false);
+        this.subscribers.set([]);
+        this.listError.set('Не удалось загрузить абонентов. Проверьте, что бэкенд запущен.');
+        this.isListLoading.set(false);
       }
     });
+  }
+
+  selectSubscriber(subscriber: UtilityBill): void {
+    this.bill.set(subscriber);
+    this.newReading.set(null);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+  }
+
+  serviceName(serviceId: string): string {
+    return this.services.find(s => s.id === serviceId)?.name ?? serviceId;
   }
 
   onSubmitReading(): void {
@@ -90,10 +106,13 @@ export class AppComponent {
 
     this.isLoading.set(true);
     this.errorMessage.set('');
+    this.successMessage.set('');
 
-    this.billingService.submitReading(currentBill.accountNumber, readingVal).subscribe({
+    this.billingService.submitReading(currentBill.id, readingVal).subscribe({
       next: (updatedBill: UtilityBill) => {
         this.bill.set(updatedBill);
+        // Обновляем абонента и в списке, чтобы там тоже был новый долг
+        this.subscribers.update(list => list.map(s => (s.id === updatedBill.id ? updatedBill : s)));
         this.newReading.set(null);
         this.successMessage.set('Показания успешно приняты! Баланс обновлен.');
         this.isLoading.set(false);

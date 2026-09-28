@@ -1,5 +1,6 @@
+// Абонент коммунального предприятия (строка таблицы SUBSCRIBERS на бэкенде)
 export interface UtilityBill {
-  id?: number;
+  id: number;
   accountNumber: string;
   serviceType: string;
   ownerName: string;

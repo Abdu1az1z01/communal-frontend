@@ -1,27 +1,13 @@
 <div class="app">
 
-  <!-- Шапка Zetta Billing: на всю ширину, логотип и кнопка меню в левом верхнем углу -->
+  <!-- Шапка Zetta Billing: название в левом верхнем углу -->
   <header class="topbar">
-    <div class="brand">
-      <h1 class="brand-title">Zetta <span>Billing</span></h1>
-      <button
-        type="button"
-        class="burger"
-        [class.open]="isMenuOpen()"
-        (click)="toggleMenu($event)"
-        aria-label="Открыть меню услуг"
-        [attr.aria-expanded]="isMenuOpen()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-
+    <h1 class="brand-title">Zetta <span>Billing</span></h1>
     <span class="version">v1.0</span>
   </header>
 
-  <!-- Боковое меню коммунальных услуг, выезжает слева (список берётся из services в app.component.ts) -->
-  <nav class="sidebar" [class.open]="isMenuOpen()" (click)="$event.stopPropagation()">
+  <!-- Коммунальные услуги: всегда видны слева под названием (список берётся из services в app.component.ts) -->
+  <nav class="sidebar">
     <div class="menu-title">Коммунальные услуги</div>
     @for (service of services; track service.id) {
       <button
@@ -43,101 +29,128 @@
       <p class="subtitle">Городской биллинговый портал коммунальных услуг Бишкека</p>
     </div>
 
-    @if (selectedService(); as service) {
-      <div class="selected-service">
-        <span>{{ service.icon }}</span> Выбранная услуга: <strong>{{ service.name }}</strong>
+    @if (!selectedService()) {
+      <section class="card empty-card">
+        <div class="empty-icon">👈</div>
+        <div class="empty-title">Выберите коммунальное предприятие</div>
+        <div class="muted">Нажмите на услугу в меню слева, чтобы увидеть список абонентов</div>
+      </section>
+    } @else {
+      <div class="layout">
+
+        <!-- Левая колонка: окно со списком абонентов выбранного предприятия + поиск -->
+        <section class="card list-card">
+          <div class="list-head">
+            <div class="list-title">
+              {{ selectedService()?.icon }} {{ selectedService()?.name }}
+            </div>
+            <div class="muted">Абонентов: {{ subscribers().length }}</div>
+          </div>
+
+          <input
+            type="search"
+            class="input search-input"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="🔍 Поиск по ФИО, лицевому счёту или адресу"
+          />
+
+          @if (listError()) {
+            <p class="msg msg-error">⚠️ {{ listError() }}</p>
+          }
+
+          <ul class="subscriber-list">
+            @for (s of subscribers(); track s.id) {
+              <li>
+                <button
+                  type="button"
+                  class="subscriber"
+                  [class.active]="bill()?.id === s.id"
+                  (click)="selectSubscriber(s)">
+                  <div class="subscriber-main">
+                    <div class="subscriber-name">{{ s.ownerName }}</div>
+                    <div class="muted small">№ {{ s.accountNumber }} · {{ s.address }}</div>
+                  </div>
+                  <div class="subscriber-debt" [class.zero]="s.debt === 0">{{ s.debt }} сом</div>
+                </button>
+              </li>
+            } @empty {
+              @if (!isListLoading() && !listError()) {
+                <li class="list-empty muted">Никого не найдено</li>
+              }
+            }
+          </ul>
+        </section>
+
+        <!-- Правая колонка: квитанция абонента -->
+        @if (bill(); as data) {
+          <section class="card bill-card">
+
+            <div class="bill-header">
+              <div>
+                <div class="bill-header-label">Служба</div>
+                <div class="bill-header-value">{{ serviceName(data.serviceType) }}</div>
+              </div>
+              <div class="text-right">
+                <div class="bill-header-label">Лицевой счет</div>
+                <div class="bill-header-value">№ {{ data.accountNumber }}</div>
+              </div>
+            </div>
+
+            <div class="bill-body">
+              <div class="bill-grid">
+                <div class="owner">
+                  <div class="muted">Абонент (ФИО):</div>
+                  <div class="owner-name">{{ data.ownerName }}</div>
+                  <div class="muted mt-8">Адрес:</div>
+                  <div>{{ data.address }}</div>
+                </div>
+
+                <div class="amount-box">
+                  <div>
+                    <span class="muted">Сумма к оплате / Долг:</span>
+                    <div class="amount">{{ data.debt }} <span>сом</span></div>
+                  </div>
+                  <div class="text-right muted">
+                    Тариф: <strong>{{ data.tariff }} сом/{{ selectedService()?.unit }}</strong><br/>
+                    Пред. показания: <strong>{{ data.previousReading }}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="reading">
+                <h3>Передать новые показания счетчика</h3>
+                <div class="input-row">
+                  <input
+                    type="number"
+                    class="input"
+                    [ngModel]="newReading()"
+                    (ngModelChange)="newReading.set($event)"
+                    placeholder="Текущее значение счетчика"
+                  />
+                  <button class="btn btn-success" (click)="onSubmitReading()" [disabled]="isLoading()">
+                    Отправить
+                  </button>
+                </div>
+
+                @if (errorMessage()) {
+                  <p class="msg msg-error">⚠️ {{ errorMessage() }}</p>
+                }
+                @if (successMessage()) {
+                  <p class="msg msg-success">✅ {{ successMessage() }}</p>
+                }
+              </div>
+            </div>
+          </section>
+        } @else {
+          <section class="card empty-card">
+            <div class="empty-icon">🧾</div>
+            <div class="empty-title">Здесь появится квитанция</div>
+            <div class="muted">Выберите абонента в списке слева</div>
+          </section>
+        }
+
       </div>
     }
-
-    <div class="layout">
-
-      <!-- Левая колонка: поиск по лицевому счету -->
-      <section class="card search-card">
-        <label class="field-label" for="account">Номер лицевого счета / Код абонента:</label>
-        <div class="input-row">
-          <input
-            id="account"
-            type="text"
-            class="input"
-            [ngModel]="searchAccount()"
-            (ngModelChange)="searchAccount.set($event)"
-            (keyup.enter)="onSearch()"
-            placeholder="Например: 102030"
-          />
-          <button class="btn btn-primary" (click)="onSearch()" [disabled]="isLoading()">
-            {{ isLoading() ? 'Поиск...' : 'Найти' }}
-          </button>
-        </div>
-
-        @if (errorMessage()) {
-          <p class="msg msg-error">⚠️ {{ errorMessage() }}</p>
-        }
-        @if (successMessage()) {
-          <p class="msg msg-success">✅ {{ successMessage() }}</p>
-        }
-      </section>
-
-      <!-- Правая колонка: квитанция абонента -->
-      @if (bill(); as data) {
-        <section class="card bill-card">
-
-          <div class="bill-header">
-            <div>
-              <div class="bill-header-label">Служба</div>
-              <div class="bill-header-value">{{ data.serviceType }}</div>
-            </div>
-            <div class="text-right">
-              <div class="bill-header-label">Лицевой счет</div>
-              <div class="bill-header-value">№ {{ data.accountNumber }}</div>
-            </div>
-          </div>
-
-          <div class="bill-body">
-            <div class="bill-grid">
-              <div class="owner">
-                <div class="muted">Абонент (ФИО):</div>
-                <div class="owner-name">{{ data.ownerName || 'Бишкекчанин А. А.' }}</div>
-                <div class="muted mt-8">Адрес:</div>
-                <div>{{ data.address || 'г. Бишкек' }}</div>
-              </div>
-
-              <div class="amount-box">
-                <div>
-                  <span class="muted">Сумма к оплате / Долг:</span>
-                  <div class="amount">{{ data.debt }} <span>сом</span></div>
-                </div>
-                <div class="text-right muted">
-                  Тариф: <strong>{{ data.tariff || 10.45 }} сом/м³</strong><br/>
-                  Пред. показания: <strong>{{ data.previousReading }}</strong>
-                </div>
-              </div>
-            </div>
-
-            <div class="reading">
-              <h3>Передать новые показания счетчика</h3>
-              <div class="input-row">
-                <input
-                  type="number"
-                  class="input"
-                  [ngModel]="newReading()"
-                  (ngModelChange)="newReading.set($event)"
-                  placeholder="Текущее значение счетчика"
-                />
-                <button class="btn btn-success" (click)="onSubmitReading()" [disabled]="isLoading()">
-                  Отправить
-                </button>
-              </div>
-            </div>
-          </div>
-        </section>
-      } @else {
-        <section class="card empty-card">
-          <div class="empty-icon">🧾</div>
-          <div class="empty-title">Здесь появится ваша квитанция</div>
-          <div class="muted">Введите номер лицевого счета слева и нажмите «Найти»</div>
-        </section>
-      }
-
-    </div>
   </main>
 </div>

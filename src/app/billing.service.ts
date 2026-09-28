@@ -8,13 +8,20 @@ import { UtilityBill } from './billing.model';
 })
 export class BillingService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/billing';
+  private apiUrl = 'http://localhost:8080/api';
 
-  getBillByAccount(accountNumber: string): Observable<UtilityBill> {
-    return this.http.get<UtilityBill>(`${this.apiUrl}/${accountNumber}`);
+  // Список абонентов предприятия с поиском по ФИО, лицевому счёту или адресу
+  getSubscribers(serviceId: string, search: string): Observable<UtilityBill[]> {
+    return this.http.get<UtilityBill[]>(`${this.apiUrl}/services/${serviceId}/subscribers`, {
+      params: { search }
+    });
   }
 
-  submitReading(accountNumber: string, reading: number): Observable<UtilityBill> {
-    return this.http.post<UtilityBill>(`${this.apiUrl}/${accountNumber}/readings`, { reading });
+  getSubscriber(id: number): Observable<UtilityBill> {
+    return this.http.get<UtilityBill>(`${this.apiUrl}/subscribers/${id}`);
+  }
+
+  submitReading(id: number, reading: number): Observable<UtilityBill> {
+    return this.http.post<UtilityBill>(`${this.apiUrl}/subscribers/${id}/readings`, { reading });
   }
 }
