@@ -1,0 +1,140 @@
+/* ===== Шапка ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-title {
+  color: #0f172a;
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.brand-title span {
+  color: #0284c7;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 0 0 24px 0;
+  font-size: 0.9rem;
+}
+
+.version {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* ===== Кнопка «три полоски» ===== */
+.menu-wrapper {
+  position: relative;
+}
+
+.burger {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.burger:hover {
+  background: #f8fafc;
+}
+
+.burger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #0f172a;
+  border-radius: 2px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+/* Когда меню открыто — полоски превращаются в крестик */
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ===== Выпадающее меню ===== */
+.menu {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  z-index: 10;
+  min-width: 240px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+}
+
+.menu-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: #f1f5f9;
+}
+
+.menu-item.active {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.menu-icon {
+  width: 22px;
+  text-align: center;
+}
+
+/* ===== Плашка выбранной услуги ===== */
+.selected-service {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
