@@ -1,9 +1,23 @@
-/* ===== Шапка ===== */
+/* ===== Вся страница ===== */
+.app {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: #f1f5f9;
+  min-height: 100vh;
+  color: #1e293b;
+}
+
+/* ===== Шапка (на всю ширину, прижата к верху) ===== */
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  padding: 0 20px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .brand {
@@ -26,8 +40,8 @@
 
 .subtitle {
   color: #64748b;
-  margin: 0 0 24px 0;
-  font-size: 0.9rem;
+  margin: 6px 0 0 0;
+  font-size: 1rem;
 }
 
 .version {
@@ -40,10 +54,6 @@
 }
 
 /* ===== Кнопка «три полоски» ===== */
-.menu-wrapper {
-  position: relative;
-}
-
 .burger {
   width: 40px;
   height: 40px;
@@ -77,18 +87,26 @@
 .burger.open span:nth-child(2) { opacity: 0; }
 .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ===== Выпадающее меню ===== */
-.menu {
-  position: absolute;
-  top: 48px;
+/* ===== Боковое меню слева ===== */
+.sidebar {
+  position: fixed;
+  top: 64px;               /* сразу под шапкой (= высота .topbar) */
   left: 0;
-  z-index: 10;
-  min-width: 240px;
+  bottom: 0;
+  z-index: 15;
+  width: 10vw;             /* ширина меню: ровно 1/10 ширины экрана */
+  box-sizing: border-box;  /* отступы внутри считаются в эти 10% */
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
-  padding: 8px;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 4px 0 20px -5px rgba(0, 0, 0, 0.1);
+  padding: 12px 8px;
+  overflow-y: auto;
+  transform: translateX(-100%);   /* по умолчанию спрятано за левым краем */
+  transition: transform 0.25s ease;
+}
+
+.sidebar.open {
+  transform: translateX(0);
 }
 
 .menu-title {
@@ -111,6 +129,7 @@
   font-size: 0.95rem;
   color: #1e293b;
   text-align: left;
+  line-height: 1.3;        /* длинные названия переносятся на 2 строки */
   cursor: pointer;
 }
 
@@ -125,6 +144,7 @@
 }
 
 .menu-icon {
+  flex-shrink: 0;
   width: 22px;
   text-align: center;
 }
@@ -135,6 +155,200 @@
   color: #0369a1;
   padding: 10px 14px;
   border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+  margin-bottom: 24px;
+  font-size: 1rem;
+}
+
+/* ===== Основное содержимое ===== */
+.content {
+  max-width: 1400px;       /* максимальная ширина содержимого на больших мониторах */
+  margin: 0 auto;
+  padding: 32px 40px;
+}
+
+.page-head {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Две колонки: слева поиск, справа квитанция */
+.layout {
+  display: grid;
+  grid-template-columns: 420px 1fr;   /* ширина левой колонки | правая занимает остальное */
+  gap: 24px;
+  align-items: start;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.search-card {
+  padding: 28px;
+}
+
+.field-label {
+  display: block;
+  font-weight: 600;
+  color: #334155;
+  margin-bottom: 10px;
+  font-size: 1.05rem;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px #e0f2fe;
+}
+
+.btn {
+  color: #ffffff;
+  border: none;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled { opacity: 0.6; cursor: default; }
+.btn-primary { background: #0284c7; }
+.btn-primary:hover { background: #0369a1; }
+.btn-success { background: #10b981; }
+.btn-success:hover { background: #059669; }
+
+.msg { margin: 14px 0 0 0; font-size: 0.95rem; }
+.msg-error { color: #ef4444; }
+.msg-success { color: #10b981; }
+
+.muted { color: #64748b; font-size: 0.95rem; }
+.text-right { text-align: right; }
+.mt-8 { margin-top: 8px; }
+
+/* ===== Квитанция ===== */
+.bill-card {
+  overflow: hidden;
+}
+
+.bill-header {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 20px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bill-header-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.bill-header-value {
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+.bill-body {
+  padding: 28px;
+}
+
+/* Внутри квитанции: слева абонент, справа сумма */
+.bill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.owner-name {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.amount-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.amount {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #dc2626;
+}
+
+.amount span {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.reading {
+  border-top: 1px dashed #cbd5e1;
+  padding-top: 24px;
+}
+
+.reading h3 {
+  margin: 0 0 14px 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+/* Заглушка, пока квитанция не найдена */
+.empty-card {
+  padding: 60px 28px;
+  text-align: center;
+}
+
+.empty-icon { font-size: 3rem; }
+
+.empty-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 12px 0 6px;
+}
+
+/* ===== Планшеты и телефоны: всё в одну колонку ===== */
+@media (max-width: 900px) {
+  .layout,
+  .bill-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .content { padding: 20px 16px; }
+  .sidebar { width: 70vw; }   /* на телефоне 1/10 экрана слишком узко */
+  .brand-title { font-size: 1.4rem; }
+  .amount-box { flex-direction: column; align-items: flex-start; }
+  .amount-box .text-right { text-align: left; }
 }
