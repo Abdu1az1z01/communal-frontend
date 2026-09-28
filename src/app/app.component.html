@@ -1,20 +1,53 @@
 <div style="font-family: system-ui, -apple-system, sans-serif; background: #f1f5f9; min-height: 100vh; padding: 24px 16px;">
   <div style="max-width: 650px; margin: 0 auto;">
     
-    <!-- Шапка Zetta Billing -->
-    <header style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
-      <div>
-        <h1 style="color: #0f172a; margin: 0; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px;">
-          Zetta <span style="color: #0284c7;">Billing</span>
-        </h1>
-        <p style="color: #64748b; margin: 4px 0 0 0; font-size: 0.9rem;">
-          Городской биллинговый портал коммунальных услуг Бишкека
-        </p>
+    <!-- Шапка Zetta Billing: логотип + кнопка меню (три полоски) -->
+    <header class="topbar">
+      <div class="brand">
+        <h1 class="brand-title">Zetta <span>Billing</span></h1>
+
+        <div class="menu-wrapper">
+          <button
+            type="button"
+            class="burger"
+            [class.open]="isMenuOpen()"
+            (click)="toggleMenu($event)"
+            aria-label="Открыть меню услуг"
+            [attr.aria-expanded]="isMenuOpen()">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <!-- Выпадающее меню коммунальных услуг (список берётся из services в app.component.ts) -->
+          @if (isMenuOpen()) {
+            <nav class="menu" (click)="$event.stopPropagation()">
+              <div class="menu-title">Коммунальные услуги</div>
+              @for (service of services; track service.id) {
+                <button
+                  type="button"
+                  class="menu-item"
+                  [class.active]="selectedService()?.id === service.id"
+                  (click)="selectService(service)">
+                  <span class="menu-icon">{{ service.icon }}</span>
+                  {{ service.name }}
+                </button>
+              }
+            </nav>
+          }
+        </div>
       </div>
-      <span style="background: #e0f2fe; color: #0369a1; padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;">
-        v1.0
-      </span>
+
+      <span class="version">v1.0</span>
     </header>
+
+    <p class="subtitle">Городской биллинговый портал коммунальных услуг Бишкека</p>
+
+    @if (selectedService(); as service) {
+      <div class="selected-service">
+        <span>{{ service.icon }}</span> Выбранная услуга: <strong>{{ service.name }}</strong>
+      </div>
+    }
 
     <!-- Поиск по лицевому счету -->
     <div style="background: #ffffff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); margin-bottom: 20px;">
