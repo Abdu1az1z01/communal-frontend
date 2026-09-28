@@ -1,0 +1,63 @@
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 0 1 420px;
+}
+
+.row {
+  cursor: pointer;
+}
+
+.row:hover {
+  background: #f0f9ff;
+}
+
+.name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 32px !important;
+}
+
+/* ===== Страницы таблицы ===== */
+.pagination {
+  display: flex;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.pagination button {
+  min-width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #0284c7;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  color: #cbd5e1;
+  cursor: default;
+}
+
+.pagination button.current {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+}

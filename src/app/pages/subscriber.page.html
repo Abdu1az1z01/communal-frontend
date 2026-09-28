@@ -1,0 +1,97 @@
+<a class="back" [routerLink]="['/services', service()?.id]">← К списку абонентов</a>
+
+@if (subscriber(); as s) {
+  <!-- Данные абонента и общий долг -->
+  <section class="card info">
+    <div class="info-main">
+      <div class="muted">{{ service()?.icon }} {{ service()?.name }} · лицевой счёт № {{ s.accountNumber }}</div>
+      <h2 class="page-title">{{ s.ownerName }}</h2>
+      <div class="info-grid">
+        <div><span class="muted">Адрес:</span> {{ s.address }}</div>
+        <div><span class="muted">Телефон:</span> {{ s.phone || '—' }}</div>
+        <div><span class="muted">Тариф:</span> {{ s.tariff }} сом/{{ service()?.unit }}</div>
+        <div><span class="muted">Последние показания:</span> {{ s.currentReading }}</div>
+      </div>
+    </div>
+
+    <div class="total" [class.total-debt]="s.debt > 0" [class.total-paid]="s.debt === 0">
+      @if (s.debt > 0) {
+        <div class="total-label">Общий долг</div>
+        <div class="total-value">{{ s.debt }} <span>сом</span></div>
+        <div class="total-note">Не оплачено месяцев: {{ unpaidCount() }}</div>
+      } @else {
+        <div class="total-label">Долгов нет</div>
+        <div class="total-value">✓ Оплачено</div>
+      }
+    </div>
+  </section>
+
+  @if (error()) {
+    <p class="msg msg-error">⚠️ {{ error() }}</p>
+  }
+  @if (success()) {
+    <p class="msg msg-success">✅ {{ success() }}</p>
+  }
+
+  <!-- История начислений: красные — долг, зелёные — оплачено -->
+  <h3 class="section-title">История начислений</h3>
+  <section class="card table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Месяц</th>
+          <th>Показания</th>
+          <th>Расход</th>
+          <th class="text-right">Сумма</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (bill of bills(); track bill.id) {
+          <tr [class.row-debt]="!bill.paid" [class.row-paid]="bill.paid">
+            <td class="period">{{ formatPeriod(bill.period) }}</td>
+            <td>{{ bill.previousReading }} → {{ bill.currentReading }}</td>
+            <td>{{ bill.consumption }} {{ service()?.unit }}</td>
+            <td class="text-right" [class.debt]="!bill.paid" [class.paid]="bill.paid">{{ bill.amount }} сом</td>
+            <td>
+              @if (bill.paid) {
+                <span class="badge badge-paid">Оплачено {{ bill.paidAt ? formatDate(bill.paidAt) : '' }}</span>
+              } @else {
+                <span class="badge badge-debt">Не оплачено</span>
+              }
+            </td>
+            <td class="text-right">
+              @if (!bill.paid) {
+                <button type="button" class="btn btn-success btn-small" (click)="pay(bill)" [disabled]="isLoading()">
+                  Оплатить
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="muted empty-row">Начислений пока нет</td></tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Передать новые показания: создаёт начисление за текущий месяц -->
+  <section class="card reading">
+    <h3>Передать новые показания счётчика</h3>
+    <div class="input-row">
+      <input
+        type="number"
+        class="input"
+        [ngModel]="newReading()"
+        (ngModelChange)="newReading.set($event)"
+        [placeholder]="'Больше или равно ' + s.currentReading"
+      />
+      <button type="button" class="btn btn-success" (click)="onSubmitReading()" [disabled]="isLoading()">
+        Отправить
+      </button>
+    </div>
+  </section>
+} @else if (error()) {
+  <p class="msg msg-error">⚠️ {{ error() }}</p>
+}

@@ -1,5 +1,107 @@
-/* You can add global styles to this file, and also import other style files */
+/* Общие стили, которые используются на всех страницах */
 
 body {
   margin: 0;
 }
+
+.page-title {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.subtitle {
+  color: #64748b;
+  margin: 6px 0 0 0;
+  font-size: 1.05rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px #e0f2fe;
+}
+
+.btn {
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled { opacity: 0.6; cursor: default; }
+.btn-success { background: #10b981; }
+.btn-success:hover { background: #059669; }
+
+.msg { margin: 12px 0 0 0; font-size: 0.95rem; }
+.msg-error { color: #dc2626; }
+.msg-success { color: #059669; }
+
+.muted { color: #64748b; font-size: 0.95rem; }
+
+/* Долг — красный, оплачено — зелёный */
+.debt { color: #dc2626; font-weight: 700; }
+.paid { color: #059669; font-weight: 700; }
+
+.empty-card {
+  padding: 60px 28px;
+  text-align: center;
+}
+
+.empty-icon { font-size: 3rem; }
+
+.empty-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 12px 0 6px;
+}
+
+/* Таблицы (список абонентов, история начислений) */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.table th {
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0369a1;
+  text-transform: uppercase;
+  padding: 14px 16px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.text-right { text-align: right !important; }
