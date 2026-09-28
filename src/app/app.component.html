@@ -1,27 +1,13 @@
 <div class="app">
 
-  <!-- Шапка Zetta Billing: на всю ширину, логотип и кнопка меню в левом верхнем углу -->
+  <!-- Шапка Zetta Billing: название в левом верхнем углу -->
   <header class="topbar">
-    <div class="brand">
-      <h1 class="brand-title">Zetta <span>Billing</span></h1>
-      <button
-        type="button"
-        class="burger"
-        [class.open]="isMenuOpen()"
-        (click)="toggleMenu($event)"
-        aria-label="Открыть меню услуг"
-        [attr.aria-expanded]="isMenuOpen()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-
+    <h1 class="brand-title">Zetta <span>Billing</span></h1>
     <span class="version">v1.0</span>
   </header>
 
-  <!-- Боковое меню коммунальных услуг, выезжает слева (список берётся из services в app.component.ts) -->
-  <nav class="sidebar" [class.open]="isMenuOpen()" (click)="$event.stopPropagation()">
+  <!-- Коммунальные услуги: всегда видны слева под названием (список берётся из services в app.component.ts) -->
+  <nav class="sidebar">
     <div class="menu-title">Коммунальные услуги</div>
     @for (service of services; track service.id) {
       <button

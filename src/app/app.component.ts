@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BillingService } from './billing.service';
@@ -20,7 +20,7 @@ export interface UtilityService {
 export class AppComponent {
   private billingService = inject(BillingService);
 
-  // Список услуг в меню «три полоски». Чтобы добавить/убрать/переименовать услугу — меняйте здесь.
+  // Список услуг в левом меню. Чтобы добавить/убрать/переименовать услугу — меняйте здесь.
   services: UtilityService[] = [
     { id: 'cold-water', name: 'Холодная вода/Стоки', icon: '💧' },
     { id: 'hot-water', name: 'Горячая вода', icon: '🚿' },
@@ -29,7 +29,6 @@ export class AppComponent {
     { id: 'gas', name: 'Газ', icon: '⛽' }
   ];
 
-  isMenuOpen = signal<boolean>(false);
   selectedService = signal<UtilityService | null>(null);
 
   searchAccount = signal<string>('102030');
@@ -39,20 +38,8 @@ export class AppComponent {
   errorMessage = signal<string>('');
   successMessage = signal<string>('');
 
-  toggleMenu(event: MouseEvent): void {
-    event.stopPropagation();
-    this.isMenuOpen.update(open => !open);
-  }
-
   selectService(service: UtilityService): void {
     this.selectedService.set(service);
-    this.isMenuOpen.set(false);
-  }
-
-  // Закрываем меню при клике в любом месте страницы
-  @HostListener('document:click')
-  closeMenu(): void {
-    this.isMenuOpen.set(false);
   }
 
   onSearch(): void {
