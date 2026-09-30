@@ -1,0 +1,71 @@
+<div class="page-head">
+  <div>
+    <h2 class="page-title">👥 Сотрудники</h2>
+    <p class="subtitle">Роли, места работы, доступ к системе и время работы</p>
+  </div>
+  <button type="button" class="btn btn-primary add-btn" (click)="formTarget.set('new')">+ Добавить сотрудника</button>
+</div>
+
+@if (success()) {
+  <p class="msg msg-success">✅ {{ success() }}</p>
+}
+@if (error()) {
+  <p class="msg msg-error">⚠️ {{ error() }}</p>
+}
+
+<!-- Нажатие на строку — время работы; карандаш слева (при наведении) — редактирование -->
+<section class="card table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="edit-col"></th>
+        <th>ФИО</th>
+        <th>Логин</th>
+        <th>Роль</th>
+        <th>Место работы</th>
+        <th>Статус</th>
+        <th>Последний вход</th>
+        <th class="text-right">За месяц</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (e of employees(); track e.id) {
+        <tr class="row hover-row" [class.inactive]="!e.active" (click)="workTimeOf.set(e)" title="Показать время работы">
+          <td class="edit-col" (click)="$event.stopPropagation()">
+            <button type="button" class="hover-edit" title="Редактировать сотрудника" (click)="formTarget.set(e)">✏️</button>
+          </td>
+          <td class="name">
+            {{ e.fullName }}
+            @if (isSelf(e)) { <span class="muted small">(это вы)</span> }
+          </td>
+          <td>{{ e.login }}</td>
+          <td class="nowrap">{{ e.role === 'DIRECTOR' ? '👔 Директор' : '🏛️ Инспектор' }}</td>
+          <td>{{ e.workplace || '—' }}</td>
+          <td class="nowrap">
+            @if (!e.active) {
+              <span class="badge badge-debt">🔒 Доступ закрыт</span>
+            } @else if (e.online) {
+              <span class="badge badge-paid">● В системе</span>
+            } @else {
+              <span class="muted">Не в системе</span>
+            }
+          </td>
+          <td class="nowrap">{{ formatDateTime(e.lastLoginAt) }}</td>
+          <td class="text-right nowrap"><strong>{{ formatMinutes(e.minutesThisMonth) }}</strong></td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>
+
+@if (formTarget()) {
+  <app-employee-form
+    [employee]="editTarget()"
+    [isSelf]="isSelf(editTarget())"
+    (saved)="onSaved($event)"
+    (closed)="formTarget.set(null)" />
+}
+
+@if (workTimeOf(); as e) {
+  <app-work-time [employee]="e" (closed)="workTimeOf.set(null)" />
+}

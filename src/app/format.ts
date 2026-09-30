@@ -11,3 +11,18 @@ export function formatPeriod(period: string): string {
 export function formatDate(date: string): string {
   return date.split('-').reverse().join('.');
 }
+
+// '2026-09-30T12:39:22Z' → '30.09.2026 18:39' (по времени браузера)
+export function formatDateTime(iso: string | null): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleString('ru-RU', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  });
+}
+
+// 320 → '5 ч 20 мин'
+export function formatMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h} ч ${m} мин` : `${m} мин`;
+}

@@ -2,10 +2,15 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
+// Роль сотрудника: директор управляет сотрудниками и тарифами, инспектор работает с абонентами
+export type Role = 'DIRECTOR' | 'INSPECTOR';
+
 // Вошедший сотрудник инспекции (то, что возвращает бэкенд при входе)
 export interface AuthSession {
   token: string;
+  employeeId: number;
   name: string;
+  role: Role;
 }
 
 const STORAGE_KEY = 'zetta-session';
@@ -18,6 +23,7 @@ export class AuthService {
 
   session = signal<AuthSession | null>(readStored());
   isLoggedIn = computed(() => this.session() !== null);
+  isDirector = computed(() => this.session()?.role === 'DIRECTOR');
 
   login(login: string, password: string): Observable<AuthSession> {
     return this.http.post<AuthSession>(`${this.apiUrl}/employee`, { login, password })
@@ -48,8 +54,8 @@ function readStored(): AuthSession | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const session = raw ? (JSON.parse(raw) as AuthSession) : null;
-    // Сессия от старой версии сайта (с ролями) тоже подходит: нужны только token и name
-    return session?.token ? session : null;
+    // Сессия от старой версии сайта (без роли) не подходит — нужно войти заново
+    return session?.token && session.role ? session : null;
   } catch {
     return null;
   }

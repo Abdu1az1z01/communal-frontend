@@ -14,15 +14,10 @@
         <input class="input" name="accountNumber" [(ngModel)]="form.accountNumber" placeholder="102030" />
       </label>
       <label>
-        Тариф, сом/{{ service().unit }} *
-        <input class="input" name="tariff" type="number" step="0.01" min="0" [(ngModel)]="form.tariff" />
+        Телефон
+        <input class="input" name="phone" [(ngModel)]="form.phone" placeholder="+996 555 123456" />
       </label>
     </div>
-
-    <label>
-      Телефон
-      <input class="input" name="phone" [(ngModel)]="form.phone" placeholder="+996 555 123456" />
-    </label>
 
     <label>
       Адрес

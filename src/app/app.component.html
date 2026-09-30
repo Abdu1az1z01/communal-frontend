@@ -11,7 +11,7 @@
       @if (auth.session(); as s) {
         <div class="user-info">
           <div class="user-name">{{ s.name }}</div>
-          <div class="user-role">🏛️ Муниципальная инспекция</div>
+          <div class="user-role">{{ s.role === 'DIRECTOR' ? '👔 Директор' : '🏛️ Инспектор' }}</div>
         </div>
         <button type="button" class="logout" (click)="logout()">Выйти</button>
       }
@@ -19,7 +19,7 @@
     </div>
   </header>
 
-  <!-- Коммунальные услуги: меню слева после входа (список — в services.ts) -->
+  <!-- Меню слева после входа: коммунальные услуги (список — в services.ts), у директора ещё «Управление» -->
   @if (auth.isLoggedIn()) {
     <nav class="sidebar">
       <div class="menu-title">Коммунальные услуги</div>
@@ -27,6 +27,19 @@
         <a class="menu-item" [routerLink]="['/services', service.id]" routerLinkActive="active">
           <span class="menu-icon">{{ service.icon }}</span>
           {{ service.name }}
+        </a>
+      }
+
+      <!-- Раздел директора -->
+      @if (auth.isDirector()) {
+        <div class="menu-title menu-section">Управление</div>
+        <a class="menu-item" routerLink="/employees" routerLinkActive="active">
+          <span class="menu-icon">👥</span>
+          Сотрудники
+        </a>
+        <a class="menu-item" routerLink="/tariffs" routerLinkActive="active">
+          <span class="menu-icon">💰</span>
+          Тарифы
         </a>
       }
     </nav>

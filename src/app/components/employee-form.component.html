@@ -1,0 +1,55 @@
+<div class="backdrop" (click)="closed.emit()">
+  <form class="card modal" (click)="$event.stopPropagation()" (ngSubmit)="save()">
+    <h3>{{ isEdit ? 'Редактировать сотрудника' : 'Новый сотрудник' }}</h3>
+
+    <label>
+      ФИО *
+      <input class="input" name="fullName" [(ngModel)]="form.fullName" placeholder="Фамилия Имя Отчество" />
+    </label>
+
+    <div class="row-2">
+      <label>
+        Логин *
+        <input class="input" name="login" [(ngModel)]="form.login" [disabled]="isEdit" autocomplete="off" />
+      </label>
+      <label>
+        Роль *
+        <select class="input" name="role" [(ngModel)]="form.role" [disabled]="isSelf()">
+          <option value="INSPECTOR">🏛️ Инспектор</option>
+          <option value="DIRECTOR">👔 Директор</option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Место работы / участок
+      <input class="input" name="workplace" [(ngModel)]="form.workplace" placeholder="Например: Октябрьский район" />
+    </label>
+
+    <label>
+      {{ isEdit ? 'Новый пароль (оставьте пустым, чтобы не менять)' : 'Пароль *' }}
+      <input class="input" name="password" type="password" autocomplete="new-password" [(ngModel)]="form.password" placeholder="Не короче 6 символов" />
+    </label>
+
+    @if (isEdit) {
+      <label class="check">
+        <input type="checkbox" name="active" [(ngModel)]="form.active" [disabled]="isSelf()" />
+        Доступ к системе открыт
+      </label>
+      @if (!form.active) {
+        <p class="muted note">Сотрудник не сможет войти, а текущий вход будет сразу закрыт.</p>
+      }
+    }
+
+    @if (error()) {
+      <p class="msg msg-error">⚠️ {{ error() }}</p>
+    }
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="closed.emit()">Отмена</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+        {{ isSaving() ? 'Сохранение...' : 'Сохранить' }}
+      </button>
+    </div>
+  </form>
+</div>

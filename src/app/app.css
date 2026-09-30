@@ -119,6 +119,12 @@
   padding: 6px 12px 10px;
 }
 
+.menu-section {
+  margin-top: 18px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+
 .menu-item {
   display: flex;
   align-items: center;

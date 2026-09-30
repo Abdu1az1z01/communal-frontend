@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Bill, Subscriber, SubscriberForm } from './billing.model';
+import { Bill, Employee, EmployeeForm, Subscriber, SubscriberForm, Tariff, WorkTime } from './billing.model';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +50,38 @@ export class BillingService {
   // Ручное изменение статуса оплаты (например, ошибка при оплате через банк), причина обязательна
   changeBillStatus(billId: number, paid: boolean, note: string): Observable<Subscriber> {
     return this.http.put<Subscriber>(`${this.apiUrl}/bills/${billId}/status`, { paid, note });
+  }
+
+  // ===== Тарифы (смотреть — все, менять — директор) =====
+
+  getTariffs(): Observable<Tariff[]> {
+    return this.http.get<Tariff[]>(`${this.apiUrl}/tariffs`);
+  }
+
+  createTariff(serviceType: string, price: number, effectiveFrom: string): Observable<Tariff> {
+    return this.http.post<Tariff>(`${this.apiUrl}/tariffs`, { serviceType, price, effectiveFrom });
+  }
+
+  cancelTariff(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/tariffs/${id}`);
+  }
+
+  // ===== Сотрудники (только директор) =====
+
+  getEmployees(): Observable<Employee[]> {
+    return this.http.get<Employee[]>(`${this.apiUrl}/employees`);
+  }
+
+  createEmployee(form: EmployeeForm): Observable<Employee> {
+    return this.http.post<Employee>(`${this.apiUrl}/employees`, form);
+  }
+
+  updateEmployee(id: number, form: EmployeeForm): Observable<Employee> {
+    return this.http.put<Employee>(`${this.apiUrl}/employees/${id}`, form);
+  }
+
+  getWorkTime(employeeId: number, month: string): Observable<WorkTime> {
+    return this.http.get<WorkTime>(`${this.apiUrl}/employees/${employeeId}/work-time`, { params: { month } });
   }
 
   // Понятное описание ошибки запроса, чтобы сразу было видно, что не так с бэкендом
