@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Bill, Subscriber } from './billing.model';
+import { Bill, Subscriber, SubscriberForm } from './billing.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +15,23 @@ export class BillingService {
     return this.http.get<Subscriber[]>(`${this.apiUrl}/services/${serviceId}/subscribers`, {
       params: { search }
     });
+  }
+
+  // Поиск сразу во всех услугах
+  searchAll(search: string): Observable<Subscriber[]> {
+    return this.http.get<Subscriber[]>(`${this.apiUrl}/subscribers`, { params: { search } });
+  }
+
+  createSubscriber(serviceId: string, form: SubscriberForm): Observable<Subscriber> {
+    return this.http.post<Subscriber>(`${this.apiUrl}/services/${serviceId}/subscribers`, form);
+  }
+
+  updateSubscriber(id: number, form: SubscriberForm): Observable<Subscriber> {
+    return this.http.put<Subscriber>(`${this.apiUrl}/subscribers/${id}`, form);
+  }
+
+  deleteSubscriber(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/subscribers/${id}`);
   }
 
   getSubscriber(id: number): Observable<Subscriber> {
@@ -43,7 +60,8 @@ export class BillingService {
       if (err.status === 404) {
         return `Бэкенд ответил 404 (${err.url}). Скорее всего, запущен старый бэкенд — остановите его и запустите ZettaBilling из zetta-backend.`;
       }
-      return `Ошибка бэкенда ${err.status}: ${err.statusText || err.message}`;
+      // 400 / 409 и т.п.: бэкенд присылает понятный текст (например «Лицевой счёт уже занят»)
+      return err.error?.message || `Ошибка бэкенда ${err.status}: ${err.statusText || err.message}`;
     }
     return 'Неизвестная ошибка при обращении к бэкенду.';
   }
