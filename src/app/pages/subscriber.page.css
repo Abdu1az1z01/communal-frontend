@@ -8,6 +8,12 @@
 
 .back:hover { text-decoration: underline; }
 
+.cabinet-title {
+  margin: 0 0 16px;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
 /* ===== Карточка абонента ===== */
 .info {
   display: flex;

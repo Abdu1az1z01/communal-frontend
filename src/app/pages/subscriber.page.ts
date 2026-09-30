@@ -6,8 +6,11 @@ import { BillingService } from '../billing.service';
 import { Bill, Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
+import { AuthService } from '../auth/auth.service';
 
-// Страница абонента: данные, история начислений по месяцам, оплата и передача показаний
+// Страница абонента: данные, история начислений по месяцам, оплата и передача показаний.
+// Для сотрудника открывается из таблицы (/services/:serviceId/subscribers/:id),
+// для гражданина — это его личный кабинет (/my): без кнопок «Редактировать» и «Удалить».
 @Component({
   selector: 'app-subscriber-page',
   standalone: true,
@@ -18,6 +21,7 @@ import { SubscriberFormComponent } from '../components/subscriber-form.component
 export class SubscriberPage {
   private billingService = inject(BillingService);
   private router = inject(Router);
+  auth = inject(AuthService);
 
   service = signal<UtilityService | undefined>(undefined);
   subscriber = signal<Subscriber | null>(null);
@@ -32,8 +36,15 @@ export class SubscriberPage {
 
   constructor() {
     inject(ActivatedRoute).paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
-      this.service.set(findService(params.get('serviceId')));
-      this.load(Number(params.get('id')));
+      const session = this.auth.session();
+      if (this.auth.isCitizen() && session) {
+        // Гражданин видит только свой лицевой счёт
+        this.service.set(findService(session.serviceType));
+        this.load(session.subscriberId!);
+      } else {
+        this.service.set(findService(params.get('serviceId')));
+        this.load(Number(params.get('id')));
+      }
     });
   }
 

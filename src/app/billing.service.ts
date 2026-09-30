@@ -57,6 +57,9 @@ export class BillingService {
       if (err.status === 0) {
         return `Бэкенд не отвечает на ${this.apiUrl}. Запустите класс ZettaBilling (папка zetta-backend).`;
       }
+      if (err.status === 401 || err.status === 403) {
+        return err.error?.message || (err.status === 401 ? 'Требуется вход.' : 'Нет доступа.');
+      }
       if (err.status === 404) {
         return `Бэкенд ответил 404 (${err.url}). Скорее всего, запущен старый бэкенд — остановите его и запустите ZettaBilling из zetta-backend.`;
       }

@@ -1,21 +1,33 @@
-<div class="app">
+<div class="app" [class.no-sidebar]="!auth.isEmployee()">
 
-  <!-- Шапка Zetta Billing: название в левом верхнем углу -->
+  <!-- Шапка Zetta Billing: название в левом верхнем углу, справа — кто вошёл и кнопка «Выйти» -->
   <header class="topbar">
     <a class="brand-title" routerLink="/">Zetta <span>Billing</span></a>
-    <span class="version">v1.0</span>
+
+    <div class="user">
+      @if (auth.session(); as s) {
+        <div class="user-info">
+          <div class="user-name">{{ s.name }}</div>
+          <div class="user-role">{{ s.role === 'EMPLOYEE' ? '🏛️ Сотрудник предприятия' : '👤 Абонент' }}</div>
+        </div>
+        <button type="button" class="logout" (click)="logout()">Выйти</button>
+      }
+      <span class="version">v1.0</span>
+    </div>
   </header>
 
-  <!-- Коммунальные услуги: всегда видны слева под названием (список — в services.ts) -->
-  <nav class="sidebar">
-    <div class="menu-title">Коммунальные услуги</div>
-    @for (service of services; track service.id) {
-      <a class="menu-item" [routerLink]="['/services', service.id]" routerLinkActive="active">
-        <span class="menu-icon">{{ service.icon }}</span>
-        {{ service.name }}
-      </a>
-    }
-  </nav>
+  <!-- Коммунальные услуги: меню слева, только для сотрудников (список — в services.ts) -->
+  @if (auth.isEmployee()) {
+    <nav class="sidebar">
+      <div class="menu-title">Коммунальные услуги</div>
+      @for (service of services; track service.id) {
+        <a class="menu-item" [routerLink]="['/services', service.id]" routerLinkActive="active">
+          <span class="menu-icon">{{ service.icon }}</span>
+          {{ service.name }}
+        </a>
+      }
+    </nav>
+  }
 
   <!-- Сюда подставляется текущая страница (см. app.routes.ts) -->
   <main class="content">

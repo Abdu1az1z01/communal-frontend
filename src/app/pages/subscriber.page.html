@@ -1,4 +1,8 @@
-<a class="back" [routerLink]="['/services', service()?.id]">← К списку абонентов</a>
+@if (auth.isEmployee()) {
+  <a class="back" [routerLink]="['/services', service()?.id]">← К списку абонентов</a>
+} @else {
+  <h2 class="cabinet-title">Личный кабинет абонента</h2>
+}
 
 @if (subscriber(); as s) {
   <!-- Данные абонента и общий долг -->
@@ -6,10 +10,12 @@
     <div class="info-main">
       <div class="muted">{{ service()?.icon }} {{ service()?.name }} · лицевой счёт № {{ s.accountNumber }}</div>
       <h2 class="page-title">{{ s.ownerName }}</h2>
-      <div class="info-actions">
-        <button type="button" class="btn btn-secondary btn-small" (click)="isEditing.set(true)">✏️ Редактировать</button>
-        <button type="button" class="btn btn-danger btn-small" (click)="deleteSubscriber()">🗑️ Удалить</button>
-      </div>
+      @if (auth.isEmployee()) {
+        <div class="info-actions">
+          <button type="button" class="btn btn-secondary btn-small" (click)="isEditing.set(true)">✏️ Редактировать</button>
+          <button type="button" class="btn btn-danger btn-small" (click)="deleteSubscriber()">🗑️ Удалить</button>
+        </div>
+      }
       <div class="info-grid">
         <div><span class="muted">Адрес:</span> {{ s.address }}</div>
         <div><span class="muted">Телефон:</span> {{ s.phone || '—' }}</div>
