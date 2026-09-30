@@ -8,7 +8,9 @@ import { Bill, Employee, EmployeeForm, Subscriber, SubscriberForm, Tariff, WorkT
 })
 export class BillingService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api';
+  // Адрес бэкенда относительный: в готовом приложении сайт и API отдаёт один сервер (ZettaBilling),
+  // а при разработке (npm start) запросы /api перенаправляет proxy.conf.json на http://localhost:8080
+  private apiUrl = '/api';
 
   // Список абонентов предприятия с поиском по ФИО, лицевому счёту или адресу
   getSubscribers(serviceId: string, search: string): Observable<Subscriber[]> {
@@ -88,7 +90,7 @@ export class BillingService {
   describeError(err: unknown): string {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 0) {
-        return `Бэкенд не отвечает на ${this.apiUrl}. Запустите класс ZettaBilling (папка zetta-backend).`;
+        return 'Бэкенд не отвечает. Запустите ZettaBilling (в IntelliJ или готовое приложение).';
       }
       if (err.status === 401 || err.status === 403) {
         return err.error?.message || (err.status === 401 ? 'Требуется вход.' : 'Нет доступа.');
