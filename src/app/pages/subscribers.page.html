@@ -2,18 +2,36 @@
   <div class="page-head">
     <div>
       <h2 class="page-title">{{ s.icon }} {{ s.name }}</h2>
-      <p class="subtitle">Абоненты предприятия · всего: {{ subscribers().length }}</p>
+      <p class="subtitle">
+        @if (searchAllServices()) {
+          Поиск во всех услугах · найдено: {{ subscribers().length }}
+        } @else {
+          Абоненты предприятия · всего: {{ subscribers().length }}
+        }
+      </p>
     </div>
 
-    <input
-      type="search"
-      class="input search-input"
-      [ngModel]="searchQuery()"
-      (ngModelChange)="onSearchChange($event)"
-      placeholder="🔍 Поиск по ФИО, лицевому счёту или адресу"
-    />
+    <div class="tools">
+      <div class="search-box">
+        <input
+          type="search"
+          class="input search-input"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="🔍 Поиск по ФИО, лицевому счёту, телефону или адресу"
+        />
+        <label class="check">
+          <input type="checkbox" [ngModel]="searchAllServices()" (ngModelChange)="onSearchAllChange($event)" />
+          Искать во всех услугах
+        </label>
+      </div>
+      <button type="button" class="btn btn-primary add-btn" (click)="formTarget.set('new')">+ Добавить абонента</button>
+    </div>
   </div>
 
+  @if (success()) {
+    <p class="msg msg-success">✅ {{ success() }}</p>
+  }
   @if (error()) {
     <p class="msg msg-error">⚠️ {{ error() }}</p>
   }
@@ -24,23 +42,30 @@
       <thead>
         <tr>
           <th>№</th>
+          @if (searchAllServices()) {
+            <th>Услуга</th>
+          }
           <th>ФИО</th>
           <th>Лицевой счёт</th>
           <th>Телефон</th>
           <th>Адрес</th>
           <th>Тариф</th>
           <th class="text-right">Долг</th>
+          <th class="text-right">Действия</th>
         </tr>
       </thead>
       <tbody>
         @for (sub of pageRows(); track sub.id; let i = $index) {
           <tr class="row" (click)="openSubscriber(sub)" title="Открыть историю начислений">
             <td class="muted">{{ (page() - 1) * pageSize + i + 1 }}</td>
+            @if (searchAllServices()) {
+              <td class="service-cell" [title]="serviceOf(sub)?.name ?? ''">{{ serviceOf(sub)?.icon }}</td>
+            }
             <td class="name">👤 {{ sub.ownerName }}</td>
-            <td>{{ sub.accountNumber }}</td>
+            <td class="nowrap">{{ sub.accountNumber }}</td>
             <td class="nowrap">{{ sub.phone || '—' }}</td>
-            <td>{{ sub.address }}</td>
-            <td class="nowrap">{{ sub.tariff }} сом/{{ s.unit }}</td>
+            <td class="address">{{ sub.address }}</td>
+            <td class="nowrap">{{ sub.tariff }} сом/{{ serviceOf(sub)?.unit }}</td>
             <td class="text-right nowrap">
               @if (sub.debt > 0) {
                 <span class="debt">{{ sub.debt }} сом</span>
@@ -48,10 +73,14 @@
                 <span class="paid">Оплачено</span>
               }
             </td>
+            <td class="text-right nowrap" (click)="$event.stopPropagation()">
+              <button type="button" class="icon-btn" title="Редактировать" (click)="formTarget.set(sub)">✏️</button>
+              <button type="button" class="icon-btn danger" title="Удалить" (click)="deleteSubscriber(sub)">🗑️</button>
+            </td>
           </tr>
         } @empty {
           @if (!isLoading() && !error()) {
-            <tr><td colspan="7" class="muted empty-row">Никого не найдено</td></tr>
+            <tr><td [attr.colspan]="searchAllServices() ? 9 : 8" class="muted empty-row">Никого не найдено</td></tr>
           }
         }
       </tbody>
@@ -69,6 +98,15 @@
       <button type="button" (click)="goToPage(page() + 1)" [disabled]="page() === pageCount()">›</button>
       <button type="button" (click)="goToPage(pageCount())" [disabled]="page() === pageCount()">»</button>
     </nav>
+  }
+
+  <!-- Окно «Добавить / Редактировать абонента» -->
+  @if (formTarget()) {
+    <app-subscriber-form
+      [service]="formService()"
+      [subscriber]="editTarget()"
+      (saved)="onSaved($event)"
+      (closed)="formTarget.set(null)" />
   }
 } @else {
   <section class="card empty-card">

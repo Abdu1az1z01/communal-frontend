@@ -7,8 +7,41 @@
   margin-bottom: 20px;
 }
 
-.search-input {
-  flex: 0 1 420px;
+.tools {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 440px;
+  max-width: 100%;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  cursor: pointer;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+}
+
+.add-btn {
+  height: 50px;
+  white-space: nowrap;
+}
+
+.icon-btn + .icon-btn {
+  margin-left: 6px;
 }
 
 .row {
@@ -26,6 +59,28 @@
 
 .nowrap {
   white-space: nowrap;
+}
+
+.address {
+  min-width: 140px;
+}
+
+/* Таблица абонентов поплотнее, чтобы все колонки помещались на экране */
+.table th,
+.table td {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.table th {
+  white-space: normal;
+}
+
+/* Значок услуги в режиме «Искать во всех услугах» (название — во всплывающей подсказке) */
+.service-cell {
+  font-size: 1.4rem;
+  text-align: center;
+  cursor: help;
 }
 
 .empty-row {

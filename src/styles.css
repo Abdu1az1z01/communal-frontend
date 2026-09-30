@@ -105,3 +105,24 @@ body {
 }
 
 .text-right { text-align: right !important; }
+
+.btn-primary { background: #0284c7; }
+.btn-primary:hover { background: #0369a1; }
+.btn-secondary { background: #e2e8f0; color: #334155; }
+.btn-secondary:hover { background: #cbd5e1; }
+.btn-danger { background: #ef4444; }
+.btn-danger:hover { background: #dc2626; }
+
+/* Маленькие кнопки-иконки в таблице (редактировать / удалить) */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.icon-btn:hover { background: #f1f5f9; }
+.icon-btn.danger:hover { background: #fee2e2; border-color: #fecaca; }

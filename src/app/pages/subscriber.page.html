@@ -6,6 +6,10 @@
     <div class="info-main">
       <div class="muted">{{ service()?.icon }} {{ service()?.name }} · лицевой счёт № {{ s.accountNumber }}</div>
       <h2 class="page-title">{{ s.ownerName }}</h2>
+      <div class="info-actions">
+        <button type="button" class="btn btn-secondary btn-small" (click)="isEditing.set(true)">✏️ Редактировать</button>
+        <button type="button" class="btn btn-danger btn-small" (click)="deleteSubscriber()">🗑️ Удалить</button>
+      </div>
       <div class="info-grid">
         <div><span class="muted">Адрес:</span> {{ s.address }}</div>
         <div><span class="muted">Телефон:</span> {{ s.phone || '—' }}</div>
@@ -92,6 +96,15 @@
       </button>
     </div>
   </section>
+
+  <!-- Окно «Редактировать абонента» -->
+  @if (isEditing() && service()) {
+    <app-subscriber-form
+      [service]="service()!"
+      [subscriber]="s"
+      (saved)="onSaved($event)"
+      (closed)="isEditing.set(false)" />
+  }
 } @else if (error()) {
   <p class="msg msg-error">⚠️ {{ error() }}</p>
 }

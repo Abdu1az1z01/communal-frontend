@@ -1,21 +1,23 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BillingService } from '../billing.service';
 import { Bill, Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
+import { SubscriberFormComponent } from '../components/subscriber-form.component';
 
 // Страница абонента: данные, история начислений по месяцам, оплата и передача показаний
 @Component({
   selector: 'app-subscriber-page',
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, SubscriberFormComponent],
   templateUrl: './subscriber.page.html',
   styleUrl: './subscriber.page.css'
 })
 export class SubscriberPage {
   private billingService = inject(BillingService);
+  private router = inject(Router);
 
   service = signal<UtilityService | undefined>(undefined);
   subscriber = signal<Subscriber | null>(null);
@@ -24,6 +26,7 @@ export class SubscriberPage {
   isLoading = signal<boolean>(false);
   error = signal<string>('');
   success = signal<string>('');
+  isEditing = signal<boolean>(false);   // открыто окно «Редактировать абонента»
 
   unpaidCount = computed(() => this.bills().filter(b => !b.paid).length);
 
@@ -40,7 +43,7 @@ export class SubscriberPage {
       next: s => this.subscriber.set(s),
       error: (err: unknown) => {
         console.error(err);
-        this.error.set('Абонент не найден или бэкенд не запущен.');
+        this.error.set('Не удалось загрузить абонента. ' + this.billingService.describeError(err));
       }
     });
     this.loadBills(id);
@@ -80,6 +83,26 @@ export class SubscriberPage {
         console.error(err);
         this.error.set('Не удалось провести оплату.');
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  onSaved(updated: Subscriber): void {
+    this.subscriber.set(updated);
+    this.isEditing.set(false);
+    this.error.set('');
+    this.success.set('Данные абонента сохранены.');
+  }
+
+  deleteSubscriber(): void {
+    const s = this.subscriber();
+    if (!s || !confirm(`Удалить абонента «${s.ownerName}» вместе со всей историей начислений?`)) return;
+
+    this.billingService.deleteSubscriber(s.id).subscribe({
+      next: () => this.router.navigate(['/services', s.serviceType]),
+      error: (err: unknown) => {
+        console.error(err);
+        this.error.set('Не удалось удалить абонента. ' + this.billingService.describeError(err));
       }
     });
   }

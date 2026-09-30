@@ -23,3 +23,13 @@ export interface Bill {
   paid: boolean;
   paidAt: string | null;   // '2026-09-10'
 }
+
+// Данные формы «Добавить / Редактировать абонента»
+export interface SubscriberForm {
+  ownerName: string;
+  accountNumber: string;
+  phone: string;
+  address: string;
+  tariff: number | null;
+  currentReading?: number | null;   // только при добавлении
+}
