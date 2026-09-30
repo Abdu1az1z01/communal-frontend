@@ -40,9 +40,7 @@
   white-space: nowrap;
 }
 
-.icon-btn + .icon-btn {
-  margin-left: 6px;
-}
+
 
 .row {
   cursor: pointer;
@@ -88,31 +86,22 @@
   padding: 32px !important;
 }
 
-/* ===== Страницы таблицы ===== */
-.pagination {
-  display: flex;
-  gap: 4px;
-  margin-top: 16px;
+/* ===== Прокрутка таблицы ===== */
+.table-scroll {
+  max-height: calc(100vh - 260px);   /* таблица занимает экран, дальше — прокрутка внутри */
+  min-height: 320px;
+  overflow: auto;
 }
 
-.pagination button {
-  min-width: 40px;
-  height: 40px;
-  border: 1px solid #e2e8f0;
+/* Заголовок таблицы остаётся наверху при прокрутке */
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: #ffffff;
-  border-radius: 8px;
-  font-size: 1rem;
-  color: #0284c7;
-  cursor: pointer;
 }
 
-.pagination button:disabled {
-  color: #cbd5e1;
-  cursor: default;
-}
-
-.pagination button.current {
-  background: #0284c7;
-  border-color: #0284c7;
-  color: #ffffff;
+.more {
+  text-align: center;
+  padding: 14px;
 }

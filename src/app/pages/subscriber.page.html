@@ -8,7 +8,6 @@
       <h2 class="page-title">{{ s.ownerName }}</h2>
       <div class="info-actions">
         <button type="button" class="btn btn-secondary btn-small" (click)="isEditing.set(true)">✏️ Редактировать</button>
-        <button type="button" class="btn btn-danger btn-small" (click)="deleteSubscriber()">🗑️ Удалить</button>
       </div>
       <div class="info-grid">
         <div><span class="muted">Адрес:</span> {{ s.address }}</div>
@@ -37,23 +36,27 @@
     <p class="msg msg-success">✅ {{ success() }}</p>
   }
 
-  <!-- История начислений: красные — долг, зелёные — оплачено -->
+  <!-- История начислений: красные — долг, зелёные — оплачено.
+       При наведении на месяц слева появляется карандаш — исправить статус оплаты. -->
   <h3 class="section-title">История начислений</h3>
   <section class="card table-wrap">
     <table class="table">
       <thead>
         <tr>
+          <th class="edit-col"></th>
           <th>Месяц</th>
           <th>Показания</th>
           <th>Расход</th>
           <th class="text-right">Сумма</th>
           <th>Статус</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
         @for (bill of bills(); track bill.id) {
-          <tr [class.row-debt]="!bill.paid" [class.row-paid]="bill.paid">
+          <tr class="hover-row" [class.row-debt]="!bill.paid" [class.row-paid]="bill.paid">
+            <td class="edit-col">
+              <button type="button" class="hover-edit" title="Изменить статус оплаты" (click)="statusBill.set(bill)">✏️</button>
+            </td>
             <td class="period">{{ formatPeriod(bill.period) }}</td>
             <td>{{ bill.previousReading }} → {{ bill.currentReading }}</td>
             <td>{{ bill.consumption }} {{ service()?.unit }}</td>
@@ -61,15 +64,14 @@
             <td>
               @if (bill.paid) {
                 <span class="badge badge-paid">Оплачено {{ bill.paidAt ? formatDate(bill.paidAt) : '' }}</span>
+                @if (bill.paidVia) {
+                  <div class="muted small">через {{ bill.paidVia }}</div>
+                }
               } @else {
                 <span class="badge badge-debt">Не оплачено</span>
               }
-            </td>
-            <td class="text-right">
-              @if (!bill.paid) {
-                <button type="button" class="btn btn-success btn-small" (click)="pay(bill)" [disabled]="isLoading()">
-                  Оплатить
-                </button>
+              @if (bill.statusNote) {
+                <div class="status-note" [title]="bill.statusNote">✎ Изменено инспекцией: {{ bill.statusNote }}</div>
               }
             </td>
           </tr>
@@ -97,12 +99,23 @@
     </div>
   </section>
 
+  <!-- Окно «Изменить статус оплаты» -->
+  @if (statusBill(); as bill) {
+    <app-bill-status
+      [bill]="bill"
+      [periodLabel]="formatPeriod(bill.period)"
+      (saved)="onStatusSaved($event)"
+      (closed)="statusBill.set(null)" />
+  }
+
   <!-- Окно «Редактировать абонента» -->
   @if (isEditing() && service()) {
     <app-subscriber-form
       [service]="service()!"
       [subscriber]="s"
       (saved)="onSaved($event)"
+      (statusChanged)="onStatusChanged($event)"
+      (deleted)="onDeleted()"
       (closed)="isEditing.set(false)" />
   }
 } @else if (error()) {

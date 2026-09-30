@@ -22,6 +22,8 @@ export interface Bill {
   amount: number;
   paid: boolean;
   paidAt: string | null;   // '2026-09-10'
+  paidVia: string | null;  // банк, через который оплачено
+  statusNote: string | null; // причина, если статус вручную изменила инспекция
 }
 
 // Данные формы «Добавить / Редактировать абонента»

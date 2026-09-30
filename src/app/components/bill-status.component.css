@@ -1,0 +1,45 @@
+h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #0f172a;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.option.selected {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: #334155;
+}
+
+textarea.input {
+  font-family: inherit;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

@@ -23,13 +23,24 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* Название «Zetta Billing» */
+/* Логотип + название «Zetta Billing» (картинка логотипа — public/logo.png) */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+}
+
 .brand-title {
   color: #0f172a;
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  text-decoration: none;
 }
 
 .brand-title span {
@@ -43,6 +54,45 @@
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+/* Кто вошёл + кнопка «Выйти» */
+.user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-info {
+  text-align: right;
+  line-height: 1.3;
+}
+
+.user-name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.user-role {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.logout {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #b91c1c;
 }
 
 /* ===== Меню услуг слева (всегда открыто) ===== */
@@ -105,10 +155,18 @@
   padding: 32px 40px;
 }
 
+/* Страница входа — без меню слева */
+.no-sidebar .content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 /* ===== Телефоны: меню становится строкой под названием, её можно листать вбок ===== */
 @media (max-width: 768px) {
   .app { --topbar-height: 60px; }
   .brand-title { font-size: 1.6rem; }
+  .brand-logo { width: 38px; height: 38px; }
+  .user-info, .version { display: none; }
   .content { padding: 20px 16px; margin-left: 0; }
 
   .sidebar {

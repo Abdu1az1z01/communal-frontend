@@ -6,12 +6,15 @@ import { BillingService } from '../billing.service';
 import { Bill, Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
+import { BillStatusComponent } from '../components/bill-status.component';
+import { formatDate, formatPeriod } from '../format';
 
-// Страница абонента: данные, история начислений по месяцам, оплата и передача показаний
+// Страница абонента (/services/:serviceId/subscribers/:id): данные, история начислений по месяцам,
+// исправление статуса оплаты (карандаш при наведении на месяц) и передача показаний.
 @Component({
   selector: 'app-subscriber-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, SubscriberFormComponent],
+  imports: [FormsModule, RouterLink, SubscriberFormComponent, BillStatusComponent],
   templateUrl: './subscriber.page.html',
   styleUrl: './subscriber.page.css'
 })
@@ -27,6 +30,10 @@ export class SubscriberPage {
   error = signal<string>('');
   success = signal<string>('');
   isEditing = signal<boolean>(false);   // открыто окно «Редактировать абонента»
+  statusBill = signal<Bill | null>(null);  // окно «Изменить статус оплаты»
+
+  formatPeriod = formatPeriod;
+  formatDate = formatDate;
 
   unpaidCount = computed(() => this.bills().filter(b => !b.paid).length);
 
@@ -56,35 +63,20 @@ export class SubscriberPage {
     });
   }
 
-  // '2026-09' → 'Сентябрь 2026'
-  formatPeriod(period: string): string {
-    const [year, month] = period.split('-').map(Number);
-    const name = new Date(year, month - 1, 1).toLocaleString('ru-RU', { month: 'long' });
-    return `${name[0].toUpperCase()}${name.slice(1)} ${year}`;
+  // Статус оплаты изменён вручную (через карандаш у месяца или в окне «Редактировать»)
+  onStatusSaved(updated: Subscriber): void {
+    const bill = this.statusBill();
+    this.statusBill.set(null);
+    this.onStatusChanged(updated);
+    if (bill) {
+      this.success.set(`Статус начисления за ${formatPeriod(bill.period)} изменён.`);
+    }
   }
 
-  // '2026-09-10' → '10.09.2026'
-  formatDate(date: string): string {
-    return date.split('-').reverse().join('.');
-  }
-
-  pay(bill: Bill): void {
-    this.isLoading.set(true);
+  onStatusChanged(updated: Subscriber): void {
+    this.subscriber.set(updated);
+    this.loadBills(updated.id);
     this.error.set('');
-    this.success.set('');
-    this.billingService.payBill(bill.id).subscribe({
-      next: s => {
-        this.subscriber.set(s);
-        this.loadBills(s.id);
-        this.success.set(`Начисление за ${this.formatPeriod(bill.period)} оплачено.`);
-        this.isLoading.set(false);
-      },
-      error: (err: unknown) => {
-        console.error(err);
-        this.error.set('Не удалось провести оплату.');
-        this.isLoading.set(false);
-      }
-    });
   }
 
   onSaved(updated: Subscriber): void {
@@ -94,17 +86,9 @@ export class SubscriberPage {
     this.success.set('Данные абонента сохранены.');
   }
 
-  deleteSubscriber(): void {
-    const s = this.subscriber();
-    if (!s || !confirm(`Удалить абонента «${s.ownerName}» вместе со всей историей начислений?`)) return;
-
-    this.billingService.deleteSubscriber(s.id).subscribe({
-      next: () => this.router.navigate(['/services', s.serviceType]),
-      error: (err: unknown) => {
-        console.error(err);
-        this.error.set('Не удалось удалить абонента. ' + this.billingService.describeError(err));
-      }
-    });
+  // Абонента удалили в окне «Редактировать» — возвращаемся к списку
+  onDeleted(): void {
+    this.router.navigate(['/services', this.service()?.id]);
   }
 
   onSubmitReading(): void {

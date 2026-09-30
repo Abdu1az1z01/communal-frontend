@@ -47,8 +47,9 @@ export class BillingService {
     return this.http.post<Subscriber>(`${this.apiUrl}/subscribers/${subscriberId}/readings`, { reading });
   }
 
-  payBill(billId: number): Observable<Subscriber> {
-    return this.http.post<Subscriber>(`${this.apiUrl}/bills/${billId}/pay`, {});
+  // Ручное изменение статуса оплаты (например, ошибка при оплате через банк), причина обязательна
+  changeBillStatus(billId: number, paid: boolean, note: string): Observable<Subscriber> {
+    return this.http.put<Subscriber>(`${this.apiUrl}/bills/${billId}/status`, { paid, note });
   }
 
   // Понятное описание ошибки запроса, чтобы сразу было видно, что не так с бэкендом
@@ -56,6 +57,9 @@ export class BillingService {
     if (err instanceof HttpErrorResponse) {
       if (err.status === 0) {
         return `Бэкенд не отвечает на ${this.apiUrl}. Запустите класс ZettaBilling (папка zetta-backend).`;
+      }
+      if (err.status === 401 || err.status === 403) {
+        return err.error?.message || (err.status === 401 ? 'Требуется вход.' : 'Нет доступа.');
       }
       if (err.status === 404) {
         return `Бэкенд ответил 404 (${err.url}). Скорее всего, запущен старый бэкенд — остановите его и запустите ZettaBilling из zetta-backend.`;

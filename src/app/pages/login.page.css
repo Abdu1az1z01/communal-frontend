@@ -1,0 +1,36 @@
+.login {
+  display: flex;
+  justify-content: center;
+  padding-top: 32px;
+}
+
+.form {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+}
+
+.subtitle {
+  margin: -6px 0 6px;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.submit {
+  height: 48px;
+  font-size: 1.05rem;
+}

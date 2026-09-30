@@ -1,25 +1,3 @@
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.modal {
-  width: 100%;
-  max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
 h3 {
   margin: 0;
   font-size: 1.4rem;
@@ -49,4 +27,41 @@ label {
 
 @media (max-width: 500px) {
   .row-2 { grid-template-columns: 1fr; }
+}
+
+/* Статусы оплаты по месяцам */
+.section {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 12px;
+}
+
+.section-title {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.bills {
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bill-row {
+  display: grid;
+  grid-template-columns: 34px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+.bill-period {
+  font-weight: 600;
+}
+
+.delete {
+  margin-right: auto;
 }

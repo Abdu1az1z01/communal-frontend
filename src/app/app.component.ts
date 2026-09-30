@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SERVICES } from './services';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -10,5 +11,13 @@ import { SERVICES } from './services';
   styleUrl: './app.css'
 })
 export class AppComponent {
+  auth = inject(AuthService);
+  private router = inject(Router);
+
   services = SERVICES;
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
 }

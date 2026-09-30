@@ -8,6 +8,8 @@
 
 .back:hover { text-decoration: underline; }
 
+
+
 /* ===== Карточка абонента ===== */
 .info {
   display: flex;
@@ -62,22 +64,22 @@
 
 .period { font-weight: 600; }
 
-.row-debt { background: #fff5f5; }
-.row-paid { background: #f6fef9; }
 
-.badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  white-space: nowrap;
+
+.btn-small { padding: 8px 16px; font-size: 0.95rem; white-space: nowrap; }
+
+.small { font-size: 0.85rem; margin-top: 4px; }
+
+/* Пометка, что статус вручную изменила инспекция */
+.status-note {
+  margin-top: 6px;
+  max-width: 280px;
+  font-size: 0.85rem;
+  color: #92400e;
+  background: #fef3c7;
+  border-radius: 6px;
+  padding: 4px 8px;
 }
-
-.badge-debt { background: #fee2e2; color: #b91c1c; }
-.badge-paid { background: #d1fae5; color: #047857; }
-
-.btn-small { padding: 8px 16px; font-size: 0.95rem; }
 
 .empty-row { text-align: center; padding: 32px !important; }
 
