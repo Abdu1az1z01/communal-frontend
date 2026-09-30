@@ -19,7 +19,7 @@ const STORAGE_KEY = 'zetta-session';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = '/api/auth';
 
   session = signal<AuthSession | null>(readStored());
   isLoggedIn = computed(() => this.session() !== null);

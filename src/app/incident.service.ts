@@ -8,7 +8,7 @@ import { Incident } from './incident.model';
 })
 export class IncidentService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/incidents';
+  private apiUrl = '/api/incidents';
 
   getIncidents(): Observable<Incident[]> {
     return this.http.get<Incident[]>(this.apiUrl);
