@@ -47,12 +47,7 @@ export class BillingService {
     return this.http.post<Subscriber>(`${this.apiUrl}/subscribers/${subscriberId}/readings`, { reading });
   }
 
-  // Оплата начисления через банк (гражданин)
-  payBill(billId: number, bank: string): Observable<Subscriber> {
-    return this.http.post<Subscriber>(`${this.apiUrl}/bills/${billId}/pay`, { bank });
-  }
-
-  // Ручное изменение статуса оплаты (инспекция), причина обязательна
+  // Ручное изменение статуса оплаты (например, ошибка при оплате через банк), причина обязательна
   changeBillStatus(billId: number, paid: boolean, note: string): Observable<Subscriber> {
     return this.http.put<Subscriber>(`${this.apiUrl}/bills/${billId}/status`, { paid, note });
   }

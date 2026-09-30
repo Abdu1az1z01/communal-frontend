@@ -1,66 +1,25 @@
 .login {
-  max-width: 760px;
-  margin: 24px auto;
-}
-
-.login-logo {
-  width: 96px;
-  height: 96px;
-  margin-bottom: 16px;
-}
-
-.question {
-  margin: 28px 0 14px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* Две карточки выбора: сотрудник / гражданин */
-.choices {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.choice {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 24px;
-  border: 2px solid transparent;
-  text-align: left;
-  font: inherit;
-  cursor: pointer;
+  justify-content: center;
+  padding-top: 32px;
 }
 
-.choice:hover {
-  border-color: #0284c7;
-}
-
-.choice-icon { font-size: 2.2rem; }
-
-.choice-title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* Форма входа */
 .form {
-  margin-top: 24px;
-  max-width: 440px;
-  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.form h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: #0f172a;
+.login-logo {
+  width: 80px;
+  height: 80px;
+}
+
+.subtitle {
+  margin: -6px 0 6px;
 }
 
 .form label {
@@ -71,22 +30,7 @@
   color: #334155;
 }
 
-.back {
-  align-self: flex-start;
-  background: none;
-  border: none;
-  padding: 0;
-  color: #0284c7;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
 .submit {
   height: 48px;
   font-size: 1.05rem;
-}
-
-@media (max-width: 700px) {
-  .choices { grid-template-columns: 1fr; }
 }

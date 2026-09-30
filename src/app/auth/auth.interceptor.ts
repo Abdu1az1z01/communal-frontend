@@ -12,7 +12,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = auth.session()?.token;
 
   const request = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
-  const isLoginRequest = req.url.includes('/api/auth/employee') || req.url.includes('/api/auth/citizen');
+  const isLoginRequest = req.url.includes('/api/auth/employee');
 
   return next(request).pipe(
     catchError((err: unknown) => {

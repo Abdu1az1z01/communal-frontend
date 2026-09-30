@@ -1,15 +1,18 @@
 import { Component, OnInit, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BillingService } from '../billing.service';
-import { Subscriber, SubscriberForm } from '../billing.model';
+import { Bill, Subscriber, SubscriberForm } from '../billing.model';
 import { UtilityService } from '../services';
+import { BillStatusComponent } from './bill-status.component';
+import { formatDate, formatPeriod } from '../format';
 
 // Окно (модалка) «Добавить абонента» / «Редактировать абонента».
-// Если передан subscriber — редактирование, иначе — добавление в указанную услугу.
+// Если передан subscriber — редактирование: данные абонента, статусы оплаты по месяцам
+// (карандаш при наведении на месяц) и удаление абонента. Иначе — добавление в указанную услугу.
 @Component({
   selector: 'app-subscriber-form',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, BillStatusComponent],
   templateUrl: './subscriber-form.component.html',
   styleUrl: './subscriber-form.component.css'
 })
@@ -20,11 +23,18 @@ export class SubscriberFormComponent implements OnInit {
   subscriber = input<Subscriber | null>(null);
 
   saved = output<Subscriber>();
+  statusChanged = output<Subscriber>();   // изменили статус оплаты какого-то месяца
+  deleted = output<void>();
   closed = output<void>();
 
   form: SubscriberForm = { ownerName: '', accountNumber: '', phone: '', address: '', tariff: null, currentReading: 0 };
   isSaving = signal<boolean>(false);
   error = signal<string>('');
+
+  bills = signal<Bill[]>([]);
+  statusBill = signal<Bill | null>(null);   // месяц, у которого меняем статус
+  formatPeriod = formatPeriod;
+  formatDate = formatDate;
 
   ngOnInit(): void {
     const s = this.subscriber();
@@ -36,7 +46,35 @@ export class SubscriberFormComponent implements OnInit {
         address: s.address ?? '',
         tariff: s.tariff
       };
+      this.loadBills(s.id);
     }
+  }
+
+  private loadBills(id: number): void {
+    this.billingService.getBills(id).subscribe({
+      next: list => this.bills.set(list),
+      error: (err: unknown) => console.error(err)
+    });
+  }
+
+  onStatusSaved(updated: Subscriber): void {
+    this.statusBill.set(null);
+    this.loadBills(updated.id);
+    this.statusChanged.emit(updated);
+  }
+
+  deleteSubscriber(): void {
+    const s = this.subscriber();
+    if (!s || !confirm(`Удалить абонента «${s.ownerName}» (л/с ${s.accountNumber}) вместе со всей историей начислений?`)) {
+      return;
+    }
+    this.billingService.deleteSubscriber(s.id).subscribe({
+      next: () => this.deleted.emit(),
+      error: (err: unknown) => {
+        console.error(err);
+        this.error.set('Не удалось удалить абонента. ' + this.billingService.describeError(err));
+      }
+    });
   }
 
   get isEdit(): boolean {

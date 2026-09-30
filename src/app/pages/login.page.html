@@ -1,65 +1,24 @@
 <div class="login">
-  <img class="login-logo" src="logo.png" alt="Zetta Billing" />
-  <h2 class="page-title">Вход в Zetta Billing</h2>
-  <p class="subtitle">Городской биллинговый портал коммунальных услуг Бишкека</p>
+  <form class="card form" (ngSubmit)="submit()">
+    <img class="login-logo" src="logo.png" alt="Zetta Billing" />
+    <h2 class="page-title">Вход в Zetta Billing</h2>
+    <p class="subtitle">Система муниципальной инспекции коммунальных услуг Бишкека</p>
 
-  @if (mode() === null) {
-    <!-- Шаг 1: кто вы? -->
-    <p class="question">Кто вы?</p>
-    <div class="choices">
-      <button type="button" class="card choice" (click)="choose('employee')">
-        <span class="choice-icon">🏛️</span>
-        <span class="choice-title">Сотрудник муниципального предприятия или инспекции</span>
-        <span class="muted">Вход по логину и паролю. Доступ ко всем абонентам.</span>
-      </button>
-      <button type="button" class="card choice" (click)="choose('citizen')">
-        <span class="choice-icon">👤</span>
-        <span class="choice-title">Гражданин (абонент)</span>
-        <span class="muted">Вход по лицевому счёту и телефону. Просмотр своих счетов и оплата через банк.</span>
-      </button>
-    </div>
-  } @else {
-    <!-- Шаг 2: форма входа -->
-    <form class="card form" (ngSubmit)="mode() === 'employee' ? submitEmployee() : submitCitizen()">
-      <button type="button" class="back" (click)="choose(null)">← Назад</button>
+    <label>
+      Логин
+      <input class="input" name="login" autocomplete="username" [(ngModel)]="login" />
+    </label>
+    <label>
+      Пароль
+      <input class="input" name="password" type="password" autocomplete="current-password" [(ngModel)]="password" />
+    </label>
 
-      @if (mode() === 'employee') {
-        <h3>🏛️ Сотрудник предприятия / инспекции</h3>
-        <label>
-          Логин
-          <input class="input" name="login" autocomplete="username" [(ngModel)]="login" />
-        </label>
-        <label>
-          Пароль
-          <input class="input" name="password" type="password" autocomplete="current-password" [(ngModel)]="password" />
-        </label>
-      } @else {
-        <h3>👤 Гражданин (абонент)</h3>
-        <label>
-          Услуга
-          <select class="input" name="serviceType" [(ngModel)]="serviceType">
-            @for (s of services; track s.id) {
-              <option [value]="s.id">{{ s.icon }} {{ s.name }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          Лицевой счёт
-          <input class="input" name="accountNumber" [(ngModel)]="accountNumber" placeholder="Например: 102030" />
-        </label>
-        <label>
-          Номер телефона, указанный в договоре
-          <input class="input" name="phone" type="tel" [(ngModel)]="phone" placeholder="+996 555 123456" />
-        </label>
-      }
+    @if (error()) {
+      <p class="msg msg-error">⚠️ {{ error() }}</p>
+    }
 
-      @if (error()) {
-        <p class="msg msg-error">⚠️ {{ error() }}</p>
-      }
-
-      <button type="submit" class="btn btn-primary submit" [disabled]="isLoading()">
-        {{ isLoading() ? 'Вход...' : 'Войти' }}
-      </button>
-    </form>
-  }
+    <button type="submit" class="btn btn-primary submit" [disabled]="isLoading()">
+      {{ isLoading() ? 'Вход...' : 'Войти' }}
+    </button>
+  </form>
 </div>

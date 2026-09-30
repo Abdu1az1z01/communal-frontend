@@ -36,11 +36,38 @@
       </label>
     }
 
+    <!-- Статусы оплаты по месяцам (только при редактировании).
+         При наведении на месяц слева появляется карандаш — исправить статус. -->
+    @if (isEdit) {
+      <div class="section">
+        <div class="section-title">Статусы оплаты</div>
+        <div class="bills">
+          @for (bill of bills(); track bill.id) {
+            <div class="hover-row bill-row" [class.row-debt]="!bill.paid" [class.row-paid]="bill.paid">
+              <button type="button" class="hover-edit" title="Изменить статус оплаты" (click)="statusBill.set(bill)">✏️</button>
+              <span class="bill-period">{{ formatPeriod(bill.period) }}</span>
+              <span [class.debt]="!bill.paid" [class.paid]="bill.paid">{{ bill.amount }} сом</span>
+              @if (bill.paid) {
+                <span class="badge badge-paid">Оплачено{{ bill.paidAt ? ' ' + formatDate(bill.paidAt) : '' }}</span>
+              } @else {
+                <span class="badge badge-debt">Не оплачено</span>
+              }
+            </div>
+          } @empty {
+            <div class="muted">Начислений пока нет</div>
+          }
+        </div>
+      </div>
+    }
+
     @if (error()) {
       <p class="msg msg-error">⚠️ {{ error() }}</p>
     }
 
     <div class="actions">
+      @if (isEdit) {
+        <button type="button" class="btn btn-danger delete" (click)="deleteSubscriber()">🗑️ Удалить абонента</button>
+      }
       <button type="button" class="btn btn-secondary" (click)="closed.emit()">Отмена</button>
       <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
         {{ isSaving() ? 'Сохранение...' : 'Сохранить' }}
@@ -48,3 +75,12 @@
     </div>
   </form>
 </div>
+
+<!-- Окно «Изменить статус оплаты» поверх окна редактирования -->
+@if (statusBill(); as bill) {
+  <app-bill-status
+    [bill]="bill"
+    [periodLabel]="formatPeriod(bill.period)"
+    (saved)="onStatusSaved($event)"
+    (closed)="statusBill.set(null)" />
+}

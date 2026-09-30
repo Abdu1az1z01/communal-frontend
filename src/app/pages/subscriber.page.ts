@@ -6,24 +6,21 @@ import { BillingService } from '../billing.service';
 import { Bill, Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
-import { BankPaymentComponent } from '../components/bank-payment.component';
 import { BillStatusComponent } from '../components/bill-status.component';
-import { AuthService } from '../auth/auth.service';
+import { formatDate, formatPeriod } from '../format';
 
-// Страница абонента: данные, история начислений по месяцам, оплата и передача показаний.
-// Для сотрудника открывается из таблицы (/services/:serviceId/subscribers/:id),
-// для гражданина — это его личный кабинет (/my): только просмотр и оплата через банк.
+// Страница абонента (/services/:serviceId/subscribers/:id): данные, история начислений по месяцам,
+// исправление статуса оплаты (карандаш при наведении на месяц) и передача показаний.
 @Component({
   selector: 'app-subscriber-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, SubscriberFormComponent, BankPaymentComponent, BillStatusComponent],
+  imports: [FormsModule, RouterLink, SubscriberFormComponent, BillStatusComponent],
   templateUrl: './subscriber.page.html',
   styleUrl: './subscriber.page.css'
 })
 export class SubscriberPage {
   private billingService = inject(BillingService);
   private router = inject(Router);
-  auth = inject(AuthService);
 
   service = signal<UtilityService | undefined>(undefined);
   subscriber = signal<Subscriber | null>(null);
@@ -33,22 +30,17 @@ export class SubscriberPage {
   error = signal<string>('');
   success = signal<string>('');
   isEditing = signal<boolean>(false);   // открыто окно «Редактировать абонента»
-  payingBill = signal<Bill | null>(null);  // гражданин: окно «Оплата через банк»
-  statusBill = signal<Bill | null>(null);  // инспекция: окно «Изменить статус оплаты»
+  statusBill = signal<Bill | null>(null);  // окно «Изменить статус оплаты»
+
+  formatPeriod = formatPeriod;
+  formatDate = formatDate;
 
   unpaidCount = computed(() => this.bills().filter(b => !b.paid).length);
 
   constructor() {
     inject(ActivatedRoute).paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
-      const session = this.auth.session();
-      if (this.auth.isCitizen() && session) {
-        // Гражданин видит только свой лицевой счёт
-        this.service.set(findService(session.serviceType));
-        this.load(session.subscriberId!);
-      } else {
-        this.service.set(findService(params.get('serviceId')));
-        this.load(Number(params.get('id')));
-      }
+      this.service.set(findService(params.get('serviceId')));
+      this.load(Number(params.get('id')));
     });
   }
 
@@ -71,37 +63,20 @@ export class SubscriberPage {
     });
   }
 
-  // '2026-09' → 'Сентябрь 2026'
-  formatPeriod(period: string): string {
-    const [year, month] = period.split('-').map(Number);
-    const name = new Date(year, month - 1, 1).toLocaleString('ru-RU', { month: 'long' });
-    return `${name[0].toUpperCase()}${name.slice(1)} ${year}`;
-  }
-
-  // '2026-09-10' → '10.09.2026'
-  formatDate(date: string): string {
-    return date.split('-').reverse().join('.');
-  }
-
-  // Гражданин: оплата через банк прошла
-  onPaid(updated: Subscriber): void {
-    const bill = this.payingBill();
-    this.payingBill.set(null);
-    this.afterBillChange(updated, bill ? `Начисление за ${this.formatPeriod(bill.period)} оплачено.` : '');
-  }
-
-  // Инспекция: статус оплаты изменён вручную
+  // Статус оплаты изменён вручную (через карандаш у месяца или в окне «Редактировать»)
   onStatusSaved(updated: Subscriber): void {
     const bill = this.statusBill();
     this.statusBill.set(null);
-    this.afterBillChange(updated, bill ? `Статус начисления за ${this.formatPeriod(bill.period)} изменён.` : '');
+    this.onStatusChanged(updated);
+    if (bill) {
+      this.success.set(`Статус начисления за ${formatPeriod(bill.period)} изменён.`);
+    }
   }
 
-  private afterBillChange(updated: Subscriber, message: string): void {
+  onStatusChanged(updated: Subscriber): void {
     this.subscriber.set(updated);
     this.loadBills(updated.id);
     this.error.set('');
-    this.success.set(message);
   }
 
   onSaved(updated: Subscriber): void {
@@ -111,17 +86,9 @@ export class SubscriberPage {
     this.success.set('Данные абонента сохранены.');
   }
 
-  deleteSubscriber(): void {
-    const s = this.subscriber();
-    if (!s || !confirm(`Удалить абонента «${s.ownerName}» вместе со всей историей начислений?`)) return;
-
-    this.billingService.deleteSubscriber(s.id).subscribe({
-      next: () => this.router.navigate(['/services', s.serviceType]),
-      error: (err: unknown) => {
-        console.error(err);
-        this.error.set('Не удалось удалить абонента. ' + this.billingService.describeError(err));
-      }
-    });
+  // Абонента удалили в окне «Редактировать» — возвращаемся к списку
+  onDeleted(): void {
+    this.router.navigate(['/services', this.service()?.id]);
   }
 
   onSubmitReading(): void {

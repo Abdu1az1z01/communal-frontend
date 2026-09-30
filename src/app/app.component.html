@@ -1,4 +1,4 @@
-<div class="app" [class.no-sidebar]="!auth.isEmployee()">
+<div class="app" [class.no-sidebar]="!auth.isLoggedIn()">
 
   <!-- Шапка Zetta Billing: логотип и название в левом верхнем углу, справа — кто вошёл и кнопка «Выйти» -->
   <header class="topbar">
@@ -11,7 +11,7 @@
       @if (auth.session(); as s) {
         <div class="user-info">
           <div class="user-name">{{ s.name }}</div>
-          <div class="user-role">{{ s.role === 'EMPLOYEE' ? '🏛️ Сотрудник предприятия' : '👤 Абонент' }}</div>
+          <div class="user-role">🏛️ Муниципальная инспекция</div>
         </div>
         <button type="button" class="logout" (click)="logout()">Выйти</button>
       }
@@ -19,8 +19,8 @@
     </div>
   </header>
 
-  <!-- Коммунальные услуги: меню слева, только для сотрудников (список — в services.ts) -->
-  @if (auth.isEmployee()) {
+  <!-- Коммунальные услуги: меню слева после входа (список — в services.ts) -->
+  @if (auth.isLoggedIn()) {
     <nav class="sidebar">
       <div class="menu-title">Коммунальные услуги</div>
       @for (service of services; track service.id) {

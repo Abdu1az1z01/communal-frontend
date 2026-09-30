@@ -7,8 +7,9 @@ import { Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
 
-// Страница «Абоненты предприятия»: таблица с поиском, страницами,
-// добавлением, редактированием и удалением абонентов
+// Страница «Абоненты предприятия»: таблица с поиском и прокруткой (строки подгружаются по мере прокрутки).
+// Карандаш слева при наведении на абонента открывает окно редактирования
+// (данные, статусы оплаты по месяцам, удаление).
 @Component({
   selector: 'app-subscribers-page',
   standalone: true,
@@ -22,14 +23,14 @@ export class SubscribersPage {
   private destroyRef = inject(DestroyRef);
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Сколько абонентов показывать на одной странице таблицы
-  readonly pageSize = 10;
+  // Сколько строк показывать сразу и сколько добавлять при прокрутке вниз
+  readonly chunkSize = 30;
 
   service = signal<UtilityService | undefined>(undefined);
   subscribers = signal<Subscriber[]>([]);
   searchQuery = signal<string>('');
   searchAllServices = signal<boolean>(false);   // галочка «Искать во всех услугах»
-  page = signal<number>(1);
+  visibleCount = signal<number>(this.chunkSize);
   isLoading = signal<boolean>(false);
   error = signal<string>('');
   success = signal<string>('');
@@ -37,12 +38,8 @@ export class SubscribersPage {
   // Окно добавления/редактирования: null — закрыто, 'new' — новый абонент, иначе — редактируемый
   formTarget = signal<Subscriber | 'new' | null>(null);
 
-  pageCount = computed(() => Math.max(1, Math.ceil(this.subscribers().length / this.pageSize)));
-  pages = computed(() => Array.from({ length: this.pageCount() }, (_, i) => i + 1));
-  pageRows = computed(() => {
-    const start = (this.page() - 1) * this.pageSize;
-    return this.subscribers().slice(start, start + this.pageSize);
-  });
+  visibleRows = computed(() => this.subscribers().slice(0, this.visibleCount()));
+  hasMore = computed(() => this.visibleCount() < this.subscribers().length);
 
   constructor() {
     // Одна и та же страница переиспользуется при переключении услуги в меню
@@ -83,7 +80,7 @@ export class SubscribersPage {
     request.subscribe({
       next: list => {
         this.subscribers.set(list);
-        this.page.set(1);
+        this.visibleCount.set(this.chunkSize);
         this.isLoading.set(false);
       },
       error: (err: unknown) => {
@@ -95,8 +92,12 @@ export class SubscribersPage {
     });
   }
 
-  goToPage(page: number): void {
-    this.page.set(Math.min(Math.max(1, page), this.pageCount()));
+  // Прокрутили таблицу почти до конца — показываем следующие строки
+  onTableScroll(event: Event): void {
+    const el = event.target as HTMLElement;
+    if (this.hasMore() && el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
+      this.visibleCount.update(n => n + this.chunkSize);
+    }
   }
 
   openSubscriber(subscriber: Subscriber): void {
@@ -126,19 +127,17 @@ export class SubscribersPage {
     this.load();
   }
 
-  deleteSubscriber(subscriber: Subscriber): void {
-    if (!confirm(`Удалить абонента «${subscriber.ownerName}» (л/с ${subscriber.accountNumber}) вместе со всей историей начислений?`)) {
-      return;
+  // Статус оплаты изменили в окне редактирования — обновляем долг в таблице
+  onStatusChanged(updated: Subscriber): void {
+    this.subscribers.update(list => list.map(s => (s.id === updated.id ? updated : s)));
+  }
+
+  onDeleted(): void {
+    const target = this.formTarget();
+    this.formTarget.set(null);
+    if (target && target !== 'new') {
+      this.success.set(`Абонент «${target.ownerName}» удалён.`);
     }
-    this.billingService.deleteSubscriber(subscriber.id).subscribe({
-      next: () => {
-        this.success.set(`Абонент «${subscriber.ownerName}» удалён.`);
-        this.load();
-      },
-      error: (err: unknown) => {
-        console.error(err);
-        this.error.set('Не удалось удалить абонента. ' + this.billingService.describeError(err));
-      }
-    });
+    this.load();
   }
 }
