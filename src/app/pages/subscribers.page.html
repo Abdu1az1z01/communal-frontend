@@ -69,7 +69,7 @@
             <td class="nowrap">{{ sub.accountNumber }}</td>
             <td class="nowrap">{{ sub.phone || '—' }}</td>
             <td class="address">{{ sub.address }}</td>
-            <td class="nowrap">{{ sub.tariff }} сом/{{ serviceOf(sub)?.unit }}</td>
+            <td class="nowrap">{{ tariffStore.currentPrice(sub.serviceType) ?? '—' }} сом/{{ serviceOf(sub)?.unit }}</td>
             <td class="text-right nowrap">
               @if (sub.debt > 0) {
                 <span class="debt">{{ sub.debt }} сом</span>

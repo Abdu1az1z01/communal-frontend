@@ -13,3 +13,11 @@ export const loginGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   return auth.isLoggedIn() ? inject(Router).createUrlTree(['/']) : true;
 };
+
+// Страницы директора (сотрудники, тарифы): инспектора отправляем на стартовую
+export const directorGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  if (auth.isDirector()) return true;
+  return router.createUrlTree([auth.isLoggedIn() ? '/' : '/login']);
+};

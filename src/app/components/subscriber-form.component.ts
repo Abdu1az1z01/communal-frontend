@@ -27,7 +27,7 @@ export class SubscriberFormComponent implements OnInit {
   deleted = output<void>();
   closed = output<void>();
 
-  form: SubscriberForm = { ownerName: '', accountNumber: '', phone: '', address: '', tariff: null, currentReading: 0 };
+  form: SubscriberForm = { ownerName: '', accountNumber: '', phone: '', address: '', currentReading: 0 };
   isSaving = signal<boolean>(false);
   error = signal<string>('');
 
@@ -43,8 +43,7 @@ export class SubscriberFormComponent implements OnInit {
         ownerName: s.ownerName,
         accountNumber: s.accountNumber,
         phone: s.phone ?? '',
-        address: s.address ?? '',
-        tariff: s.tariff
+        address: s.address ?? ''
       };
       this.loadBills(s.id);
     }
@@ -82,8 +81,8 @@ export class SubscriberFormComponent implements OnInit {
   }
 
   save(): void {
-    if (!this.form.ownerName.trim() || !this.form.accountNumber.trim() || this.form.tariff === null) {
-      this.error.set('Заполните ФИО, лицевой счёт и тариф.');
+    if (!this.form.ownerName.trim() || !this.form.accountNumber.trim()) {
+      this.error.set('Заполните ФИО и лицевой счёт.');
       return;
     }
 

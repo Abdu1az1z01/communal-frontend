@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BillingService } from '../billing.service';
 import { Bill, Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
+import { TariffStore } from '../tariff.store';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
 import { BillStatusComponent } from '../components/bill-status.component';
 import { formatDate, formatPeriod } from '../format';
@@ -20,6 +21,7 @@ import { formatDate, formatPeriod } from '../format';
 })
 export class SubscriberPage {
   private billingService = inject(BillingService);
+  tariffStore = inject(TariffStore);
   private router = inject(Router);
 
   service = signal<UtilityService | undefined>(undefined);
@@ -38,6 +40,7 @@ export class SubscriberPage {
   unpaidCount = computed(() => this.bills().filter(b => !b.paid).length);
 
   constructor() {
+    this.tariffStore.ensureLoaded();
     inject(ActivatedRoute).paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
       this.service.set(findService(params.get('serviceId')));
       this.load(Number(params.get('id')));

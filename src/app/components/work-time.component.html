@@ -1,0 +1,42 @@
+<div class="backdrop" (click)="closed.emit()">
+  <div class="card modal" (click)="$event.stopPropagation()">
+    <h3>Время работы</h3>
+    <div class="muted">{{ employee().fullName }} · {{ employee().workplace || 'место работы не указано' }}</div>
+
+    <label class="month">
+      Месяц
+      <input class="input" type="month" [(ngModel)]="month" (ngModelChange)="load()" />
+    </label>
+
+    @if (workTime(); as wt) {
+      <div class="total">Всего за месяц: <strong>{{ formatMinutes(wt.totalMinutes) }}</strong> · входов: {{ wt.sessions.length }}</div>
+
+      <div class="sessions">
+        @for (s of wt.sessions; track s.startedAt) {
+          <div class="session">
+            <span>🟢 {{ formatDateTime(s.startedAt) }}</span>
+            <span>
+              @if (s.online) {
+                <span class="online">сейчас в системе</span>
+              } @else {
+                → {{ formatDateTime(s.finishedAt) }}
+                @if (!s.ended) { <span class="muted small" title="Сотрудник не нажал «Выйти» — учтено до последнего действия">(без выхода)</span> }
+              }
+            </span>
+            <span class="minutes">{{ formatMinutes(s.minutes) }}</span>
+          </div>
+        } @empty {
+          <div class="muted">В этом месяце сотрудник не входил в систему</div>
+        }
+      </div>
+    }
+
+    @if (error()) {
+      <p class="msg msg-error">⚠️ {{ error() }}</p>
+    }
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="closed.emit()">Закрыть</button>
+    </div>
+  </div>
+</div>

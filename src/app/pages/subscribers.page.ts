@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BillingService } from '../billing.service';
 import { Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
+import { TariffStore } from '../tariff.store';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
 
 // Страница «Абоненты предприятия»: таблица с поиском и прокруткой (строки подгружаются по мере прокрутки).
@@ -19,6 +20,7 @@ import { SubscriberFormComponent } from '../components/subscriber-form.component
 })
 export class SubscribersPage {
   private billingService = inject(BillingService);
+  tariffStore = inject(TariffStore);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
@@ -42,6 +44,7 @@ export class SubscribersPage {
   hasMore = computed(() => this.visibleCount() < this.subscribers().length);
 
   constructor() {
+    this.tariffStore.ensureLoaded();
     // Одна и та же страница переиспользуется при переключении услуги в меню
     inject(ActivatedRoute).paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
       this.service.set(findService(params.get('serviceId')));

@@ -1,0 +1,49 @@
+.page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.add-btn {
+  height: 48px;
+}
+
+.row {
+  cursor: pointer;
+}
+
+.row:hover {
+  background: #f0f9ff;
+}
+
+.row.inactive {
+  opacity: 0.6;
+}
+
+.name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.small {
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* Таблица поплотнее, чтобы все колонки помещались */
+.table th,
+.table td {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.table th {
+  white-space: normal;
+}

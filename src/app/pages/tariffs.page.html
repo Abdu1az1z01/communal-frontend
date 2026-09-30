@@ -1,0 +1,72 @@
+<div class="page-head">
+  <h2 class="page-title">💰 Тарифы</h2>
+  <p class="subtitle">
+    Единый тариф для всех абонентов услуги. Новый тариф применяется к начислениям с выбранной даты,
+    уже созданные начисления не пересчитываются.
+  </p>
+</div>
+
+@if (success()) {
+  <p class="msg msg-success">✅ {{ success() }}</p>
+}
+
+<div class="grid">
+  @for (service of services; track service.id) {
+    <section class="card tariff-card">
+      <div class="head">
+        <div class="service">{{ service.icon }} {{ service.name }}</div>
+        <button type="button" class="btn btn-primary btn-small" (click)="openForm(service)">Изменить тариф</button>
+      </div>
+
+      <div class="current">
+        @if (current(service.id); as t) {
+          <div class="price">{{ t.price }} <span>сом/{{ service.unit }}</span></div>
+          <div class="muted">действует с {{ formatDate(t.effectiveFrom) }}</div>
+        } @else {
+          <div class="muted">Тариф не установлен</div>
+        }
+      </div>
+
+      <!-- Форма нового тарифа -->
+      @if (editingService() === service.id) {
+        <form class="new-form" (ngSubmit)="save(service)">
+          <label>
+            Новый тариф, сом/{{ service.unit }}
+            <input class="input" name="price" type="number" step="0.01" min="0.01" [(ngModel)]="newPrice" />
+          </label>
+          <label>
+            Действует с
+            <input class="input" name="date" type="date" [min]="today" [(ngModel)]="newDate" />
+          </label>
+          @if (error()) {
+            <p class="msg msg-error">⚠️ {{ error() }}</p>
+          }
+          <div class="actions">
+            <button type="button" class="btn btn-secondary btn-small" (click)="editingService.set(null)">Отмена</button>
+            <button type="submit" class="btn btn-success btn-small" [disabled]="isSaving()">Сохранить</button>
+          </div>
+        </form>
+      }
+
+      <!-- История: запланированные, действующий, прошлые -->
+      <div class="history">
+        @for (t of byService()[service.id] ?? []; track t.id) {
+          <div class="history-row" [class.planned]="t.status === 'PLANNED'" [class.current-row]="t.status === 'CURRENT'">
+            <span class="date">с {{ formatDate(t.effectiveFrom) }}</span>
+            <span class="value">{{ t.price }} сом</span>
+            <span class="status">
+              @switch (t.status) {
+                @case ('PLANNED') { <span class="badge badge-planned">Запланирован</span> }
+                @case ('CURRENT') { <span class="badge badge-paid">Действует</span> }
+                @default { <span class="muted">Прошлый</span> }
+              }
+            </span>
+            @if (t.status === 'PLANNED') {
+              <button type="button" class="link-danger" (click)="cancel(t, service)">Отменить</button>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

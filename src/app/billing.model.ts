@@ -8,7 +8,6 @@ export interface Subscriber {
   phone: string | null;
   previousReading: number;
   currentReading: number;
-  tariff: number;
   debt: number;
 }
 
@@ -19,6 +18,7 @@ export interface Bill {
   previousReading: number;
   currentReading: number;
   consumption: number;
+  tariff: number | null;   // тариф, по которому посчитано (у старых начислений может не быть)
   amount: number;
   paid: boolean;
   paidAt: string | null;   // '2026-09-10'
@@ -32,6 +32,45 @@ export interface SubscriberForm {
   accountNumber: string;
   phone: string;
   address: string;
-  tariff: number | null;
   currentReading?: number | null;   // только при добавлении
+}
+
+// Единый тариф услуги (строка таблицы TARIFFS)
+export interface Tariff {
+  id: number;
+  serviceType: string;
+  price: number;
+  effectiveFrom: string;   // '2026-10-01'
+  createdBy: string | null;
+  status: 'PAST' | 'CURRENT' | 'PLANNED';
+}
+
+// Сотрудник (для страницы директора)
+export interface Employee {
+  id: number;
+  login: string;
+  fullName: string;
+  role: 'DIRECTOR' | 'INSPECTOR';
+  workplace: string | null;
+  active: boolean;
+  online: boolean;
+  lastLoginAt: string | null;
+  lastSeenAt: string | null;
+  minutesThisMonth: number;
+}
+
+export interface EmployeeForm {
+  login: string;
+  password: string;
+  fullName: string;
+  role: 'DIRECTOR' | 'INSPECTOR';
+  workplace: string;
+  active: boolean;
+}
+
+// Время работы сотрудника за месяц
+export interface WorkTime {
+  month: string;
+  totalMinutes: number;
+  sessions: { startedAt: string; finishedAt: string; ended: boolean; online: boolean; minutes: number }[];
 }

@@ -1,0 +1,54 @@
+h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #0f172a;
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-weight: 600;
+  color: #334155;
+  max-width: 220px;
+}
+
+.total {
+  font-size: 1.05rem;
+}
+
+.sessions {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.minutes {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.online {
+  color: #059669;
+  font-weight: 600;
+}
+
+.small { font-size: 0.8rem; }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
