@@ -67,14 +67,25 @@
             <td>
               @if (bill.paid) {
                 <span class="badge badge-paid">Оплачено {{ bill.paidAt ? formatDate(bill.paidAt) : '' }}</span>
+                @if (bill.paidVia) {
+                  <div class="muted small">через {{ bill.paidVia }}</div>
+                }
               } @else {
                 <span class="badge badge-debt">Не оплачено</span>
               }
+              @if (bill.statusNote) {
+                <div class="status-note" [title]="bill.statusNote">✎ Изменено инспекцией: {{ bill.statusNote }}</div>
+              }
             </td>
             <td class="text-right">
-              @if (!bill.paid) {
-                <button type="button" class="btn btn-success btn-small" (click)="pay(bill)" [disabled]="isLoading()">
-                  Оплатить
+              @if (auth.isCitizen() && !bill.paid) {
+                <button type="button" class="btn btn-success btn-small" (click)="payingBill.set(bill)">
+                  Оплатить через банк
+                </button>
+              }
+              @if (auth.isEmployee()) {
+                <button type="button" class="btn btn-secondary btn-small" (click)="statusBill.set(bill)">
+                  Изменить статус
                 </button>
               }
             </td>
@@ -86,22 +97,44 @@
     </table>
   </section>
 
-  <!-- Передать новые показания: создаёт начисление за текущий месяц -->
-  <section class="card reading">
-    <h3>Передать новые показания счётчика</h3>
-    <div class="input-row">
-      <input
-        type="number"
-        class="input"
-        [ngModel]="newReading()"
-        (ngModelChange)="newReading.set($event)"
-        [placeholder]="'Больше или равно ' + s.currentReading"
-      />
-      <button type="button" class="btn btn-success" (click)="onSubmitReading()" [disabled]="isLoading()">
-        Отправить
-      </button>
-    </div>
-  </section>
+  <!-- Передать новые показания (только инспекция): создаёт начисление за текущий месяц -->
+  @if (auth.isEmployee()) {
+    <section class="card reading">
+      <h3>Передать новые показания счётчика</h3>
+      <div class="input-row">
+        <input
+          type="number"
+          class="input"
+          [ngModel]="newReading()"
+          (ngModelChange)="newReading.set($event)"
+          [placeholder]="'Больше или равно ' + s.currentReading"
+        />
+        <button type="button" class="btn btn-success" (click)="onSubmitReading()" [disabled]="isLoading()">
+          Отправить
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- Окно «Оплата через банк» (гражданин) -->
+  @if (payingBill(); as bill) {
+    <app-bank-payment
+      [bill]="bill"
+      [subscriber]="s"
+      [service]="service()!"
+      [periodLabel]="formatPeriod(bill.period)"
+      (paid)="onPaid($event)"
+      (closed)="payingBill.set(null)" />
+  }
+
+  <!-- Окно «Изменить статус оплаты» (инспекция) -->
+  @if (statusBill(); as bill) {
+    <app-bill-status
+      [bill]="bill"
+      [periodLabel]="formatPeriod(bill.period)"
+      (saved)="onStatusSaved($event)"
+      (closed)="statusBill.set(null)" />
+  }
 
   <!-- Окно «Редактировать абонента» -->
   @if (isEditing() && service()) {

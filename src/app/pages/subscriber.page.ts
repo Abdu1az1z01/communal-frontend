@@ -6,15 +6,17 @@ import { BillingService } from '../billing.service';
 import { Bill, Subscriber } from '../billing.model';
 import { UtilityService, findService } from '../services';
 import { SubscriberFormComponent } from '../components/subscriber-form.component';
+import { BankPaymentComponent } from '../components/bank-payment.component';
+import { BillStatusComponent } from '../components/bill-status.component';
 import { AuthService } from '../auth/auth.service';
 
 // Страница абонента: данные, история начислений по месяцам, оплата и передача показаний.
 // Для сотрудника открывается из таблицы (/services/:serviceId/subscribers/:id),
-// для гражданина — это его личный кабинет (/my): без кнопок «Редактировать» и «Удалить».
+// для гражданина — это его личный кабинет (/my): только просмотр и оплата через банк.
 @Component({
   selector: 'app-subscriber-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, SubscriberFormComponent],
+  imports: [FormsModule, RouterLink, SubscriberFormComponent, BankPaymentComponent, BillStatusComponent],
   templateUrl: './subscriber.page.html',
   styleUrl: './subscriber.page.css'
 })
@@ -31,6 +33,8 @@ export class SubscriberPage {
   error = signal<string>('');
   success = signal<string>('');
   isEditing = signal<boolean>(false);   // открыто окно «Редактировать абонента»
+  payingBill = signal<Bill | null>(null);  // гражданин: окно «Оплата через банк»
+  statusBill = signal<Bill | null>(null);  // инспекция: окно «Изменить статус оплаты»
 
   unpaidCount = computed(() => this.bills().filter(b => !b.paid).length);
 
@@ -79,23 +83,25 @@ export class SubscriberPage {
     return date.split('-').reverse().join('.');
   }
 
-  pay(bill: Bill): void {
-    this.isLoading.set(true);
+  // Гражданин: оплата через банк прошла
+  onPaid(updated: Subscriber): void {
+    const bill = this.payingBill();
+    this.payingBill.set(null);
+    this.afterBillChange(updated, bill ? `Начисление за ${this.formatPeriod(bill.period)} оплачено.` : '');
+  }
+
+  // Инспекция: статус оплаты изменён вручную
+  onStatusSaved(updated: Subscriber): void {
+    const bill = this.statusBill();
+    this.statusBill.set(null);
+    this.afterBillChange(updated, bill ? `Статус начисления за ${this.formatPeriod(bill.period)} изменён.` : '');
+  }
+
+  private afterBillChange(updated: Subscriber, message: string): void {
+    this.subscriber.set(updated);
+    this.loadBills(updated.id);
     this.error.set('');
-    this.success.set('');
-    this.billingService.payBill(bill.id).subscribe({
-      next: s => {
-        this.subscriber.set(s);
-        this.loadBills(s.id);
-        this.success.set(`Начисление за ${this.formatPeriod(bill.period)} оплачено.`);
-        this.isLoading.set(false);
-      },
-      error: (err: unknown) => {
-        console.error(err);
-        this.error.set('Не удалось провести оплату.');
-        this.isLoading.set(false);
-      }
-    });
+    this.success.set(message);
   }
 
   onSaved(updated: Subscriber): void {

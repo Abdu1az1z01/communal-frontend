@@ -1,0 +1,40 @@
+<div class="backdrop" (click)="closed.emit()">
+  <form class="card modal" (click)="$event.stopPropagation()" (ngSubmit)="save()">
+    <h3>Изменить статус оплаты</h3>
+    <div class="muted">{{ periodLabel() }} · {{ bill().amount }} сом · сейчас:
+      <strong [class.debt]="!bill().paid" [class.paid]="bill().paid">{{ bill().paid ? 'оплачено' : 'не оплачено' }}</strong>
+    </div>
+
+    <div class="options">
+      <label class="option" [class.selected]="paid">
+        <input type="radio" name="paid" [value]="true" [(ngModel)]="paid" />
+        <span class="paid">✓ Оплачено</span>
+      </label>
+      <label class="option" [class.selected]="!paid">
+        <input type="radio" name="paid" [value]="false" [(ngModel)]="paid" />
+        <span class="debt">✗ Не оплачено</span>
+      </label>
+    </div>
+
+    <label class="field">
+      Причина изменения *
+      <textarea
+        class="input"
+        name="note"
+        rows="3"
+        [(ngModel)]="note"
+        placeholder="Например: деньги списаны, банк подтвердил оплату, чек № 12345"></textarea>
+    </label>
+
+    @if (error()) {
+      <p class="msg msg-error">⚠️ {{ error() }}</p>
+    }
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="closed.emit()">Отмена</button>
+      <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+        {{ isSaving() ? 'Сохранение...' : 'Сохранить' }}
+      </button>
+    </div>
+  </form>
+</div>

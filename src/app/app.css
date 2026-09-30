@@ -23,13 +23,24 @@
   border-bottom: 1px solid #e2e8f0;
 }
 
-/* Название «Zetta Billing» */
+/* Логотип + название «Zetta Billing» (картинка логотипа — public/logo.png) */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+}
+
 .brand-title {
   color: #0f172a;
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  text-decoration: none;
 }
 
 .brand-title span {
@@ -154,6 +165,7 @@
 @media (max-width: 768px) {
   .app { --topbar-height: 60px; }
   .brand-title { font-size: 1.6rem; }
+  .brand-logo { width: 38px; height: 38px; }
   .user-info, .version { display: none; }
   .content { padding: 20px 16px; margin-left: 0; }
 

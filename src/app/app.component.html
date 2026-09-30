@@ -1,8 +1,11 @@
 <div class="app" [class.no-sidebar]="!auth.isEmployee()">
 
-  <!-- Шапка Zetta Billing: название в левом верхнем углу, справа — кто вошёл и кнопка «Выйти» -->
+  <!-- Шапка Zetta Billing: логотип и название в левом верхнем углу, справа — кто вошёл и кнопка «Выйти» -->
   <header class="topbar">
-    <a class="brand-title" routerLink="/">Zetta <span>Billing</span></a>
+    <a class="brand" routerLink="/">
+      <img class="brand-logo" src="logo.png" alt="" />
+      <span class="brand-title">Zetta <span>Billing</span></span>
+    </a>
 
     <div class="user">
       @if (auth.session(); as s) {

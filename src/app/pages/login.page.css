@@ -3,6 +3,12 @@
   margin: 24px auto;
 }
 
+.login-logo {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 16px;
+}
+
 .question {
   margin: 28px 0 14px;
   font-size: 1.2rem;

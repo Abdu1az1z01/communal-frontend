@@ -1,0 +1,42 @@
+<div class="backdrop" (click)="closed.emit()">
+  <div class="card modal" (click)="$event.stopPropagation()">
+    <h3>Оплата через банк</h3>
+
+    <!-- Что оплачиваем -->
+    <div class="summary">
+      <div><span class="muted">Услуга:</span> {{ service().icon }} {{ service().name }}</div>
+      <div><span class="muted">Лицевой счёт:</span> {{ subscriber().accountNumber }}</div>
+      <div><span class="muted">Период:</span> {{ periodLabel() }}</div>
+      <div class="amount">К оплате: <strong>{{ bill().amount }} сом</strong></div>
+    </div>
+
+    <div class="label">Выберите банк или платёжный сервис</div>
+    <div class="banks">
+      @for (bank of banks; track bank.id) {
+        <button
+          type="button"
+          class="bank"
+          [class.selected]="selected()?.id === bank.id"
+          (click)="selected.set(bank)">
+          <span>{{ bank.icon }}</span> {{ bank.name }}
+        </button>
+      }
+    </div>
+
+    <p class="muted note">
+      Демонстрационный режим: после подтверждения начисление отмечается оплаченным.
+      Настоящий перевод подключается через API банка.
+    </p>
+
+    @if (error()) {
+      <p class="msg msg-error">⚠️ {{ error() }}</p>
+    }
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="closed.emit()">Отмена</button>
+      <button type="button" class="btn btn-success" (click)="confirm()" [disabled]="isPaying() || !selected()">
+        {{ isPaying() ? 'Оплата...' : selected() ? 'Оплатить через ' + selected()!.name : 'Оплатить' }}
+      </button>
+    </div>
+  </div>
+</div>
